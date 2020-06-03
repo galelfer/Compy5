@@ -188,3 +188,10 @@ void symbol::insideLoop(int loopsCnt, string kind, int lineno) {
         exit(-1);
     }
 }
+
+void symbol::onlyOneMain(int lineno , const string &name){
+    if((this->get_var(name)!=nullptr) && name=="main"){
+        output::errorDef(lineno,name);
+        exit(-1);
+    }
+}

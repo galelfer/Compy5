@@ -56,7 +56,7 @@ Funcs : FuncDecl Funcs  								{}
       | 			    											{}
 ;
 
-FuncDecl :  RetType ID  LPAREN  Formals RPAREN {func_ret_type= $1->type; symbols->decl_func($2->name , $4->type , $1->type , $4->name  ,yylineno) ;} LBRACE Statements RBRACE END_SCOPE {}
+FuncDecl :  RetType ID  LPAREN  Formals RPAREN {symbols->onlyOneMain(yylineno,$2->name); func_ret_type= $1->type; symbols->decl_func($2->name , $4->type , $1->type , $4->name  ,yylineno) ;} LBRACE Statements RBRACE END_SCOPE {}
 ;
 
 RetType : Type  															{$$ = new Node($1->name, $1->type);}
