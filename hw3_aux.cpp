@@ -50,8 +50,9 @@ void symbol::add_var(const string& name, const string& type, bool isFunc, int li
         offset = 0;
     } else {
         offset = o_stack.back();
+        o_stack.back() = offset + 1;
     }
-    o_stack.back() = offset + 1;
+
     t_stack.back().emplace_back( arg(name, type, offset));
 }
 
@@ -99,7 +100,7 @@ void symbol::decl_func(const string& name, const string& type, const string& ret
 
 void symbol::PrintScope(table scope){
     for (int i = 0; i <scope.size() ; ++i) {
-        output::printID(scope[i].name,0,scope[i].type);
+        output::printID(scope[i].name,scope[i].offset,scope[i].type);
     }
 }
 
