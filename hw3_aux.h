@@ -30,12 +30,11 @@ public:
     symbol() {
         table global_scope;
         t_stack.emplace_back(global_scope);
-        o_stack.emplace_back(0);
     }
 
-    const arg* get_var(const string &unique_name, int lineno);
+    const arg* get_var(const string &unique_name, int lineno , bool checkBeforeAddOp);
 
-    const arg* get_var_type(const string &name, const string &type, int lineno);
+    const arg* get_var_type(const string &name, const string &type, int lineno , bool checkBeforeAddOp);
 
     string larger(const string &type1, const string &type2);
 
