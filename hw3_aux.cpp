@@ -9,7 +9,7 @@
 
 using namespace std;
 
-string replace(string str, string substr1, string substr2)
+static string replace(string str, string substr1, string substr2)
 {
     for (size_t index = str.find(substr1, 0); index != string::npos && substr1.length(); index = str.find(substr1, index + substr2.length()))
         str.replace(index, substr1.length(), substr2);
@@ -167,11 +167,19 @@ string symbol::funcType(const string &func_name, const string &args_types, int l
         output::errorUndef(lineno, func_name);
         exit(-1);
     }
-    vector <string> expected_args, received_args, exp_in_out, rec_in_out;
+    vector <string> expected_args, received_args, exp_in_out, empty_in;
     string exp_types_as_string = replace(f->type, "(", "") , rec_args_types_as_string = args_types;
     exp_types_as_string = replace(exp_types_as_string, ")", "");
 
     tokenize(exp_types_as_string, "->", exp_in_out);
+    if (exp_in_out.size() == 1) {
+        if(args_types == "") {
+            return exp_in_out[0];
+        } else {
+            output::errorPrototypeMismatch(lineno, func_name, empty_in);
+            exit(-1);
+        }
+    }
     tokenize(exp_in_out[0], ",", expected_args);
     tokenize(args_types, ",", received_args);
 
