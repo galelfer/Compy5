@@ -82,15 +82,20 @@ Statement : LBRACE NEW_SCOPE Statements RBRACE END_SCOPE {}
 	      	|	Type ID SC 							  {symbols->add_var($2->name, $1->type, false, yylineno);}
 	      	|	Type ID ASSIGN Exp SC 				  {symbols->check_types($1->type, $4->type, yylineno); symbols->add_var($2->name, $1->type, false, yylineno); symbols->assign($2->name, $4->type, yylineno);}
 	      	|	ID ASSIGN Exp SC 		              {symbols->assign($1->name, $2->type, yylineno);}
-	      	|	Call SC										                {}
-	      	|	RETURN SC									                {symbols->check_types("void", func_ret_type , yylineno);}
-	      	|	RETURN Exp SC 						 		            {symbols->check_types($1->type, func_ret_type , yylineno);}
-	      	|	IF NEW_SCOPE LPAREN Exp {symbols->check_types("BOOL",$4->type, yylineno);} RPAREN Statement                                   {output::endScope(); symbols->PrintScope(symbols->t_stack.back()); symbols->remove_scope();}
-	      	//|	IF NEW_SCOPE LPAREN Exp {symbols->check_types("BOOL",$4->type, yylineno);} RPAREN Statement {output::endScope(); symbols->PrintScope(symbols->t_stack.back()); symbols->remove_scope();} ELSE NEW_SCOPE Statement   {output::endScope(); symbols->PrintScope(symbols->t_stack.back()); symbols->remove_scope();}
-	      	|	WHILE {loopsCnt++;} NEW_SCOPE LPAREN Exp {symbols->check_types("BOOL",$5->type, yylineno);} RPAREN Statement 				        {output::endScope(); symbols->PrintScope(symbols->t_stack.back()); symbols->remove_scope(); loopsCnt--;}
-	      	//|	WHILE {loopsCnt++;} NEW_SCOPE LPAREN Exp {symbols->check_types("BOOL",$5->type, yylineno);} RPAREN Statement ELSE NEW_SCOPE Statement  {output::endScope(); symbols->PrintScope(symbols->t_stack.back()); symbols->remove_scope(); loopsCnt--;}
+	      	|	Call SC								  {}
+	      	|	RETURN SC							  {symbols->check_types("void", func_ret_type , yylineno);}
+	      	|	RETURN Exp SC 						  {symbols->check_types($2->type, func_ret_type , yylineno);}
+	      	|	IF NEW_SCOPE LPAREN Exp RPAREN Statement END_SCOPE ELSE NEW_SCOPE Statement END_SCOPE
+	      	|	IF NEW_SCOPE LPAREN Exp RPAREN Statement END_SCOPE
+	      	|	WHILE LOOPSCNT NEW_SCOPE LPAREN Exp RPAREN Statement END_SCOPE ELSE NEW_SCOPE Statement  END_SCOPE {loopsCnt--;}
+	      	|	WHILE LOOPSCNT NEW_SCOPE LPAREN Exp RPAREN Statement END_SCOPE {loopsCnt--;}
 	      	|	BREAK SC	 	   {symbols->insideLoop(loopsCnt , "break" , yylineno);}
 	      	|	CONTINUE SC	       {symbols->insideLoop(loopsCnt , "continue" , yylineno);}
+;
+//{symbols->check_types("BOOL",$4->type, yylineno);} //if
+//{symbols->check_types("BOOL",$5->type, yylineno);} //while
+
+LOOPSCNT :      {loopsCnt++;}
 ;
 
 NEW_SCOPE :     {symbols->add_scope();}
