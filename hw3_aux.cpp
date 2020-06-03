@@ -171,8 +171,8 @@ string symbol::funcType(const string &func_name, const string &args_types, int l
     string toTokinize = f->type;
     tokenize(toTokinize, "->", in_out);
     string braced_args_types = "(" + args_types + ")", compared_args_types = in_out[0];
-    replace(braced_args_types, "BYTE", "INT");
-    replace(compared_args_types, "BYTE", "INT");
+    braced_args_types = replace(braced_args_types, "BYTE", "INT");
+    compared_args_types = replace(compared_args_types, "BYTE", "INT");
 
     if (compared_args_types == braced_args_types)
         return in_out[1];
