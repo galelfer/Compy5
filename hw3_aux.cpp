@@ -130,7 +130,7 @@ void symbol::assign(const string &name, const string &type, int lineno) {
 }
 
 void symbol::check_types(const string &type1, const string &type2, int lineno) {
-    if((type1 == "int" && type2 == "byte") || (type2 == "int" && type1 == "byte") || (type1 == type2) )
+    if((type1 == "INT" && type2 == "BYTE") || (type2 == "INT" && type1 == "BYTE") || (type1 == type2) )
         return;
     else{
         output::errorMismatch(lineno);
