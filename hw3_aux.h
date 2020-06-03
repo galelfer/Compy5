@@ -47,6 +47,8 @@ public:
 
     void add_var(const string &name, const string &type, bool isFunc, int lineno);
 
+    void add_func(const string& name, const string& type , int lineno);
+
     void add_scope();
 
     bool remove_scope();

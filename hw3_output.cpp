@@ -47,7 +47,7 @@ void output::errorLex(int lineno){
     cout << "line " << lineno << ":" << " lexical error" << endl;
 }
 
-void output::errorSyn(int lineno){
+void output::errorSyn(int lineno) {
     cout << "line " << lineno << ":" << " syntax error" << endl;
 }
 

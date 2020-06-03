@@ -40,7 +40,7 @@ const arg* symbol::get_var_type(const string& name, const string& type) {
     return nullptr;
 }
 
-void symbol::add_var(const string& name, const string& type , bool isFunc , int lineno) {
+void symbol::add_var(const string& name, const string& type, bool isFunc, int lineno) {
     if (get_var_type(name, type) != nullptr) {
         output::errorDef(lineno, name);
         exit(-1);
@@ -53,7 +53,10 @@ void symbol::add_var(const string& name, const string& type , bool isFunc , int 
     }
     o_stack.back() = offset + 1;
     t_stack.back().emplace_back( arg(name, type, offset));
+}
 
+void symbol::add_func(const string& name, const string& type , int lineno) {
+    add_var(name, type, true, lineno);
 }
 
 void symbol::add_scope() {
@@ -87,7 +90,7 @@ void symbol::decl_func(const string& name, const string& type, const string& ret
         exit(-1);
     }
     string func_type=output::makeFunctionType(ret_val,types);
-    add_var(name , func_type  , true , lineno);
+    add_func(name , func_type , lineno);
     for(int i=0; i < (int)args.size(); i++) {
         (t_stack.back().emplace_back( arg(types[i], args[i], -i-1)));
     }
@@ -140,20 +143,28 @@ string symbol::larger(const string &type1, const string &type2) {
     return "BYTE";
 }
 
-
 string symbol::funcType(const string &func_name, const string &args_types, int lineno) {
     const arg* f = get_var(func_name);
+    if (f == nullptr) {
+        output::errorUndef(lineno, func_name);
+        exit(-1);
+    }
     vector <string> in_out;
     tokenize(f->type, "->", in_out);
     //TODO: switch all "byte" with "int".
-    if (in_out[1] == args_types)
-        return in_out[0];
+    string braced_args_types = "(" + args_types + ")";
+    if (in_out[0] == braced_args_types)
+        return in_out[1];
+
     vector <string> types;
-    tokenize(in_out[1], ",", types);
+    int len = in_out[0].size();
+    in_out[0].erase(in_out[0].begin() + len-1);
+    in_out[0].erase(in_out[0].begin());
+    //TODO: remove first and last char from in_out[0].
+    tokenize(in_out[0], ",", types);
     output::errorPrototypeMismatch(lineno, func_name, types);
     exit(-1);
 }
-
 
 void symbol::insideLoop(int loopsCnt ,  string kind , int lineno){
     if(loopsCnt==0 ){
