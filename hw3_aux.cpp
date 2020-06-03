@@ -91,8 +91,9 @@ void symbol::decl_func(const string& name, const string& type, const string& ret
     }
     string func_type=output::makeFunctionType(ret_val,types);
     add_func(name , func_type , lineno);
+    add_scope();
     for(int i=0; i < (int)args.size(); i++) {
-        (t_stack.back().emplace_back( arg(types[i], args[i], -i-1)));
+        (t_stack.back().emplace_back( arg(args[i], types[i], -i-1)));
     }
 }
 

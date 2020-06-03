@@ -56,7 +56,7 @@ Funcs : FuncDecl Funcs  								{}
       | 			    											{}
 ;
 
-FuncDecl :  RetType ID  LPAREN  Formals RPAREN {func_ret_type= $1->type; symbols->decl_func($2->name , $4->type , $1->type , $4->name  ,yylineno) ;} LBRACE Statements RBRACE
+FuncDecl :  RetType ID  LPAREN  Formals RPAREN {func_ret_type= $1->type; symbols->decl_func($2->name , $4->type , $1->type , $4->name  ,yylineno) ;} LBRACE Statements RBRACE END_SCOPE {}
 ;
 
 RetType : Type  															{$$ = new Node($1->name, $1->type);}
@@ -78,7 +78,7 @@ Statements: Statement 								{}
           | Statements Statement 					{}
 ;
 
-Statement : LBRACE NEW_SCOPE Statements RBRACE 	      {output::endScope(); symbols->PrintScope(symbols->t_stack.back()); symbols->remove_scope();}
+Statement : LBRACE NEW_SCOPE Statements RBRACE END_SCOPE {}
 	      	|	Type ID SC 							  {symbols->add_var($2->name, $1->type, false, yylineno);}
 	      	|	Type ID ASSIGN Exp SC 				  {symbols->check_types($1->type, $4->type, yylineno); symbols->add_var($2->name, $1->type, false, yylineno); symbols->assign($2->name, $4->type, yylineno);}
 	      	|	ID ASSIGN Exp SC 		              {symbols->assign($1->name, $2->type, yylineno);}
@@ -93,10 +93,11 @@ Statement : LBRACE NEW_SCOPE Statements RBRACE 	      {output::endScope(); symbo
 	      	|	CONTINUE SC	       {symbols->insideLoop(loopsCnt , "continue" , yylineno);}
 ;
 
-NEW_SCOPE :     {symbols->add_scope(); }
+NEW_SCOPE :     {symbols->add_scope();}
 ;
 
-
+END_SCOPE :      {output::endScope(); symbols->PrintScope(symbols->t_stack.back()); symbols->remove_scope();}
+;
 
 Call : ID LPAREN ExplList RPAREN  {$$=new Node("", symbols->funcType($1->name, $3->type , yylineno));}
 	 | ID LPAREN RPAREN			 		  	{$$=new Node("", symbols->funcType($1->name, "", yylineno));}
@@ -118,7 +119,7 @@ Exp : LPAREN Exp RPAREN				 {$$ = new Node($2->name, $2->type);}
 	|	Call							 				 {$$ = new Node("", $1->type);}
 	|	NUM 							 				 {$$ = new Node("", "INT");}
 	|	NUM B							 				 {$$ = new Node("", "BYTE");}
-	|	STRING 							 			 {$$ = new Node("", "string");}
+	|	STRING 							 			 {$$ = new Node("", "STRING");}
 	|	TRUE							 				 {$$ = new Node("true", "BOOL");}
 	|	FALSE 							 			 {$$ = new Node("false", "BOOL");}
 	|	NOT Exp 						 			 {symbols->check_types($2->type, "BOOL", yylineno); $$ = new Node("", "BOOL");}

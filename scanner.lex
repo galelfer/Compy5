@@ -38,7 +38,7 @@ continue 													return CONTINUE;
 [*]|[/]														{yylval = new Node(yytext, "postbinop"); return POSTBINOP;}
 [a-zA-Z]([a-zA-Z0-9])* 										{yylval = new Node(yytext, yytext); return ID;}
 0|[1-9]([0-9])* 											{yylval = new Node(yytext, "INT"); return NUM;}
-(\")([^\n\r\"\\]|\\[rnt"\\])+(\")							{yylval = new Node(yytext, "string"); return STRING;}
+(\")([^\n\r\"\\]|\\[rnt"\\])+(\")							{yylval = new Node(yytext, "STRING"); return STRING;}
 \/\/[^\r\n]*[\r|\n|\r\n]?									;
 ([\t\n\r ])   												;
 
