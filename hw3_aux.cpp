@@ -167,23 +167,26 @@ string symbol::funcType(const string &func_name, const string &args_types, int l
         output::errorUndef(lineno, func_name);
         exit(-1);
     }
-    vector <string> in_out;
-    string toTokinize = f->type;
-    tokenize(toTokinize, "->", in_out);
-    string braced_args_types = "(" + args_types + ")", compared_args_types = in_out[0];
-    braced_args_types = replace(braced_args_types, "BYTE", "INT");
-    compared_args_types = replace(compared_args_types, "BYTE", "INT");
+    vector <string> expected_args, received_args, exp_in_out, rec_in_out;
+    string exp_types_as_string = replace(f->type, "(", "") , rec_args_types_as_string = args_types;
+    exp_types_as_string = replace(exp_types_as_string, ")", "");
 
-    if (compared_args_types == braced_args_types)
-        return in_out[1];
+    tokenize(exp_types_as_string, "->", exp_in_out);
+    tokenize(exp_in_out[0], ",", expected_args);
+    tokenize(args_types, ",", received_args);
 
-    vector <string> types;
-    int len = in_out[0].size();
-    in_out[0].erase(in_out[0].begin() + len - 1);
-    in_out[0].erase(in_out[0].begin());
-    tokenize(in_out[0], ",", types);
-    output::errorPrototypeMismatch(lineno, func_name, types);
-    exit(-1);
+    if (expected_args.size() != received_args.size()) {
+        output::errorPrototypeMismatch(lineno, func_name, expected_args);
+        exit(-1);
+    }
+
+    for(int i=0; i < (int)expected_args.size(); i++) {
+        if (!(expected_args[i] == received_args[i] || (expected_args[i] == "INT" && received_args[i] == "BYTE"))) {
+            output::errorPrototypeMismatch(lineno, func_name, expected_args);
+            exit(-1);
+        }
+    }
+    return exp_in_out[1];
 }
 
 void symbol::insideLoop(int loopsCnt, string kind, int lineno) {
