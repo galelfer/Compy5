@@ -9,7 +9,7 @@
 
 using namespace std;
 
-const arg* symbol::get_var(const string &unique_name , int lineno , bool checkBeforeAddOp){
+const arg* symbol::get_var(const string &unique_name , int lineno){
     for (auto const &table: t_stack) {
         for (auto const &entry : table) {
             if (entry.name == unique_name) {
@@ -17,14 +17,11 @@ const arg* symbol::get_var(const string &unique_name , int lineno , bool checkBe
             }
         }
     }
-    if(checkBeforeAddOp) return nullptr;
-    else{
-        output::errorUndef(lineno, unique_name);
-        exit(-1);
-    }
+    output::errorUndef(lineno,unique_name);
+    exit(-1);
 }
 
-const arg* symbol::get_var_type(const string& name, const string& type , int lineno , bool checkBeforeAddOp) {
+const arg* symbol::get_var_type(const string& name, const string& type , int lineno) {
     for (auto const &table: t_stack) {
         for (auto const &entry : table) {
             if ((entry.name == name) && (entry.type == type)) {
@@ -32,15 +29,12 @@ const arg* symbol::get_var_type(const string& name, const string& type , int lin
             }
         }
     }
-    if(checkBeforeAddOp) return nullptr;
-    else{
-        output::errorUndef(lineno, name);
-        exit(-1);
-    }
+    output::errorUndef(lineno,name);
+    exit(-1);
 }
 
 void symbol::add_var(const string& name, const string& type , bool isFunc , int lineno) {
-    if (get_var_type(name, type ,lineno , true) != nullptr) {
+    if (get_var_type(name, type ,lineno) != nullptr) {
         output::errorDef(lineno, name);
         exit(-1);
     }
@@ -92,20 +86,20 @@ void symbol::decl_func(const string& name, const string& type, const string& ret
         exit(0);
     }
     string func_type=output::makeFunctionType(ret_val,types);
-    if(get_var_type(name,func_type,lineno , true) != nullptr){
+    if(get_var_type(name,func_type,lineno) != nullptr){
         output::errorDef(lineno,name);
         exit(-1);
     }
     add_var(name , func_type  , true , lineno);
     //add_scope();
     for(int i=0; i < (int)args.size(); i++) {
-        (t_stack.end()--)->emplace_back( arg(types[i], args[i], -i-1));
+        (t_stack.back()->emplace_back( arg(types[i], args[i], -i-1));
     }
 }
 
 void symbol::PrintScope(table scope){
     for (int i = 0; i <scope.size() ; ++i) {
-        output::printID(scope[i].name,scope[i].offset,scope[i].type);
+        output::printID(scope[i].name,0,scope[i].type);
     }
 }
 
@@ -133,13 +127,14 @@ void symbol::does_main_exist(){
 
 
 void symbol::assign(const string &name, const string &type, int lineno) {
-    if (get_var_type(name, type,lineno ,true) == nullptr) {
+    if (get_var_type(name, type,lineno) == nullptr) {
         output::errorUndef(lineno, name);
         exit(-1);
     }
 }
 
 void symbol::check_types(const string &type1, const string &type2, int lineno) {
+    cout<< type1 + "######" + type2  <<endl;
     if((type1 == "int" && type2 == "byte") || (type2 == "int" && type1 == "byte") || (type1 == type2) )
         return;
     else{
@@ -156,7 +151,7 @@ string symbol::larger(const string &type1, const string &type2) {
 
 
 string symbol::funcType(const string &func_name, const string &args_types, int lineno) {
-    const arg* f = get_var(func_name,lineno , false);
+    const arg* f = get_var(func_name,lineno);
     vector <string> in_out;
     tokenize(f->type, "->", in_out);
     //TODO: switch all "byte" with "int".
