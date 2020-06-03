@@ -100,6 +100,11 @@ void symbol::decl_func(const string &name, const string &type, const string &ret
     add_func(name, func_type, lineno);
     add_scope();
     for (int i = 0; i < (int) args.size(); i++) {
+        const arg* tmp = get_var_type(args[i],types[i]);
+                if(tmp!=nullptr){
+                    output::errorDef(lineno,args[i]);
+                    exit(-1);
+                }
         (t_stack.back().emplace_back(arg(args[i], types[i], -i - 1)));
     }
 }
