@@ -114,7 +114,7 @@ Type :  INT   									{}  //{$$ = new Node("", "int");}
 Exp : LPAREN Exp RPAREN				 {$$ = new Node($2->name, $2->type);}
 	|	Exp PREBINOP Exp				 	 {symbols->check_types($1->type, "int", yylineno); symbols->check_types($3->type, "int", yylineno); $$ = new Node("", symbols->larger($1->type, $3->type));}
 	|	Exp POSTBINOP Exp				 	 {symbols->check_types($1->type, "int", yylineno); symbols->check_types($3->type, "int", yylineno); $$ = new Node("", symbols->larger($1->type, $3->type));}
-	|	ID 								 				 {const arg* var=symbols->get_var($1->name,yylineno);  $$ = new Node(var->name, var->type);}
+	|	ID 								 				 {$$ = symbols->makeNodeFromID($1->name,yylineno);}
 	|	Call							 				 {$$ = new Node("", $1->type);}
 	|	NUM 							 				 {$$ = new Node("", "int");}
 	|	NUM B							 				 {$$ = new Node("", "byte");}

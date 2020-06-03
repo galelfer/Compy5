@@ -1,7 +1,7 @@
 #ifndef COMPY3_HW3_AUX_H
 #define COMPY3_HW3_AUX_H
 
-
+#include "parser.h"
 #include <iostream>
 #include <sstream>
 #include <vector>
@@ -33,9 +33,11 @@ public:
         o_stack.emplace_back(0);
     }
 
-    const arg* get_var(const string &unique_name, int lineno);
+    Node* makeNodeFromID(const string& id, int lineno);
 
-    const arg* get_var_type(const string &name, const string &type, int lineno);
+    const arg* get_var(const string &unique_name);
+
+    const arg* get_var_type(const string &name, const string &type);
 
     string larger(const string &type1, const string &type2);
 
