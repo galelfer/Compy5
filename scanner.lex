@@ -9,16 +9,16 @@
 %%
 
 
-void														{yylval= new Node(yytext, "void", ""); return VOID;}
-int														    {yylval= new Node(yytext, "int", "");return INT;}
-byte														{yylval= new Node(yytext, "byte", "");return BYTE;}
+void														{yylval= new Node(yytext, "VOID", ""); return VOID;}
+int														    {yylval= new Node(yytext, "INT", "");return INT;}
+byte														{yylval= new Node(yytext, "BYTE", "");return BYTE;}
 b														    return B;
-bool														{yylval= new Node(yytext, "bool", "");return BOOL;}
+bool														{yylval= new Node(yytext, "BOOL", "");return BOOL;}
 and														    return AND;
 or														    return OR;
 not														    return NOT;
-true														{yylval = new Node(yytext, "bool", "true"); return TRUE;}
-false														{yylval = new Node(yytext, "bool", "false"); return FALSE;}
+true														{yylval = new Node(yytext, "BOOL", "true"); return TRUE;}
+false														{yylval = new Node(yytext, "BOOL", "false"); return FALSE;}
 return														return RETURN;
 if														    return IF;
 else 														return ELSE;
@@ -37,7 +37,7 @@ continue 													return CONTINUE;
 [+]|[-]														{yylval = new Node(yytext, "prebinop"); return PREBINOP;}
 [*]|[/]														{yylval = new Node(yytext, "postbinop"); return POSTBINOP;}
 [a-zA-Z]([a-zA-Z0-9])* 										{yylval = new Node(yytext, yytext); return ID;}
-0|[1-9]([0-9])* 											{yylval = new Node(yytext, "int"); return NUM;}
+0|[1-9]([0-9])* 											{yylval = new Node(yytext, "INT"); return NUM;}
 (\")([^\n\r\"\\]|\\[rnt"\\])+(\")							{yylval = new Node(yytext, "string"); return STRING;}
 \/\/[^\r\n]*[\r|\n|\r\n]?									;
 ([\t\n\r ])   												;

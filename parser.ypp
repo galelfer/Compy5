@@ -85,10 +85,10 @@ Statement : LBRACE NEW_SCOPE Statements RBRACE 	      {output::endScope(); symbo
 	      	|	Call SC										                {}
 	      	|	RETURN SC									                {symbols->check_types("void", func_ret_type , yylineno);}
 	      	|	RETURN Exp SC 						 		            {symbols->check_types($1->type, func_ret_type , yylineno);}
-	      	|	IF NEW_SCOPE LPAREN Exp {symbols->check_types("bool",$4->type, yylineno);} RPAREN Statement                                   {output::endScope(); symbols->PrintScope(symbols->t_stack.back()); symbols->remove_scope();}
-	      	//|	IF NEW_SCOPE LPAREN Exp {symbols->check_types("bool",$4->type, yylineno);} RPAREN Statement {output::endScope(); symbols->PrintScope(symbols->t_stack.back()); symbols->remove_scope();} ELSE NEW_SCOPE Statement   {output::endScope(); symbols->PrintScope(symbols->t_stack.back()); symbols->remove_scope();}
-	      	|	WHILE {loopsCnt++;} NEW_SCOPE LPAREN Exp {symbols->check_types("bool",$5->type, yylineno);} RPAREN Statement 				        {output::endScope(); symbols->PrintScope(symbols->t_stack.back()); symbols->remove_scope(); loopsCnt--;}
-	      	//|	WHILE {loopsCnt++;} NEW_SCOPE LPAREN Exp {symbols->check_types("bool",$5->type, yylineno);} RPAREN Statement ELSE NEW_SCOPE Statement  {output::endScope(); symbols->PrintScope(symbols->t_stack.back()); symbols->remove_scope(); loopsCnt--;}
+	      	|	IF NEW_SCOPE LPAREN Exp {symbols->check_types("BOOL",$4->type, yylineno);} RPAREN Statement                                   {output::endScope(); symbols->PrintScope(symbols->t_stack.back()); symbols->remove_scope();}
+	      	//|	IF NEW_SCOPE LPAREN Exp {symbols->check_types("BOOL",$4->type, yylineno);} RPAREN Statement {output::endScope(); symbols->PrintScope(symbols->t_stack.back()); symbols->remove_scope();} ELSE NEW_SCOPE Statement   {output::endScope(); symbols->PrintScope(symbols->t_stack.back()); symbols->remove_scope();}
+	      	|	WHILE {loopsCnt++;} NEW_SCOPE LPAREN Exp {symbols->check_types("BOOL",$5->type, yylineno);} RPAREN Statement 				        {output::endScope(); symbols->PrintScope(symbols->t_stack.back()); symbols->remove_scope(); loopsCnt--;}
+	      	//|	WHILE {loopsCnt++;} NEW_SCOPE LPAREN Exp {symbols->check_types("BOOL",$5->type, yylineno);} RPAREN Statement ELSE NEW_SCOPE Statement  {output::endScope(); symbols->PrintScope(symbols->t_stack.back()); symbols->remove_scope(); loopsCnt--;}
 	      	|	BREAK SC	 	   {symbols->insideLoop(loopsCnt , "break" , yylineno);}
 	      	|	CONTINUE SC	       {symbols->insideLoop(loopsCnt , "continue" , yylineno);}
 ;
@@ -106,26 +106,26 @@ ExplList : Exp 									{$$ = new Node($1->name, $1->type);}
 		 |	Exp COMMA ExplList  		{$$ = new Node($1->name + "," + $3->name, $1->type + "," + $3->type);}
 ;
 
-Type :  INT   									{}  //{$$ = new Node("", "int");}
-	 |	BYTE 									{} //{$$ = new Node("", "byte");}
-     |	BOOL								    {} //{$$ = new Node("", "bool");}
+Type :  INT   									{}  //{$$ = new Node("", "INT");}
+	 |	BYTE 									{} //{$$ = new Node("", "BYTE");}
+     |	BOOL								    {} //{$$ = new Node("", "BOOL");}
 ;
 
 Exp : LPAREN Exp RPAREN				 {$$ = new Node($2->name, $2->type);}
-	|	Exp PREBINOP Exp				 	 {symbols->check_types($1->type, "int", yylineno); symbols->check_types($3->type, "int", yylineno); $$ = new Node("", symbols->larger($1->type, $3->type));}
-	|	Exp POSTBINOP Exp				 	 {symbols->check_types($1->type, "int", yylineno); symbols->check_types($3->type, "int", yylineno); $$ = new Node("", symbols->larger($1->type, $3->type));}
+	|	Exp PREBINOP Exp				 	 {symbols->check_types($1->type, "INT", yylineno); symbols->check_types($3->type, "INT", yylineno); $$ = new Node("", symbols->larger($1->type, $3->type));}
+	|	Exp POSTBINOP Exp				 	 {symbols->check_types($1->type, "INT", yylineno); symbols->check_types($3->type, "INT", yylineno); $$ = new Node("", symbols->larger($1->type, $3->type));}
 	|	ID 								 				 {$$ = symbols->makeNodeFromID($1->name,yylineno);}
 	|	Call							 				 {$$ = new Node("", $1->type);}
-	|	NUM 							 				 {$$ = new Node("", "int");}
-	|	NUM B							 				 {$$ = new Node("", "byte");}
+	|	NUM 							 				 {$$ = new Node("", "INT");}
+	|	NUM B							 				 {$$ = new Node("", "BYTE");}
 	|	STRING 							 			 {$$ = new Node("", "string");}
 	|	TRUE							 				 {$$ = new Node("true", "BOOL");}
 	|	FALSE 							 			 {$$ = new Node("false", "BOOL");}
 	|	NOT Exp 						 			 {symbols->check_types($2->type, "BOOL", yylineno); $$ = new Node("", "BOOL");}
 	|	Exp AND Exp 					 		 {symbols->check_types($1->type, "BOOL", yylineno); symbols->check_types($3->type, "BOOL", yylineno); $$ = new Node("", "BOOL");}
 	|	Exp OR Exp 						 		 {symbols->check_types($1->type, "BOOL", yylineno); symbols->check_types($3->type, "BOOL", yylineno); $$ = new Node("", "BOOL");}
-	|	Exp PRERELOP Exp 		 	     {symbols->check_types($1->type, "int", yylineno); symbols->check_types($3->type, "int", yylineno); $$ = new Node("", "BOOL");}
-	|	Exp POSTRELOP Exp 		 		 {symbols->check_types($1->type, "int", yylineno); symbols->check_types($3->type, "int", yylineno); $$ = new Node("", "BOOL");}
+	|	Exp PRERELOP Exp 		 	     {symbols->check_types($1->type, "INT", yylineno); symbols->check_types($3->type, "INT", yylineno); $$ = new Node("", "BOOL");}
+	|	Exp POSTRELOP Exp 		 		 {symbols->check_types($1->type, "INT", yylineno); symbols->check_types($3->type, "INT", yylineno); $$ = new Node("", "BOOL");}
 ;
 
 
