@@ -45,12 +45,6 @@ void symbol::add_var(const string& name, const string& type , bool isFunc , int 
         output::errorDef(lineno, name);
         exit(-1);
     }
-    if (t_stack.empty()) {
-        add_scope();
-    }
-    if (o_stack.empty()) {
-        o_stack.push_back(0);
-    }
     ll offset;
     if (isFunc) {
         offset = 0;
@@ -93,10 +87,6 @@ void symbol::decl_func(const string& name, const string& type, const string& ret
         exit(-1);
     }
     string func_type=output::makeFunctionType(ret_val,types);
-    if(get_var_type(name,func_type) != nullptr){
-        output::errorDef(lineno,name);
-        exit(-1);
-    }
     add_var(name , func_type  , true , lineno);
     for(int i=0; i < (int)args.size(); i++) {
         (t_stack.back().emplace_back( arg(types[i], args[i], -i-1)));
