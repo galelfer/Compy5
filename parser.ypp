@@ -71,7 +71,7 @@ FormalsList : FormalDecl    									{$$ = new Node($1->name, $1->type);}
             |  FormalDecl COMMA FormalsList   {$$ = new Node($1->name + "," + $3->name, $1->type + "," + $3->type);}
 ;
 
-FormalDecl : Type ID    											{$$ = new Node($2->name, $1->type);}
+FormalDecl : Type ID    										{$$ = new Node($2->name, $1->type);}
 ;
 
 Statements: Statement 								{}
