@@ -106,8 +106,8 @@ void symbol::PrintScope(table scope){
 
 void symbol::init_global_table(){
     vector<string> print, printi ;
-    this->t_stack[0].emplace_back( arg("print","(STRING)->VOID",0));
-    this->t_stack[0].emplace_back( arg("printi","(INT)->VOID",0));
+    this->t_stack[0].emplace_back( arg("print" , "(STRING)->VOID" ,0));
+    this->t_stack[0].emplace_back( arg("printi" , "(INT)->VOID" ,0));
 }
 
 
@@ -152,7 +152,8 @@ string symbol::funcType(const string &func_name, const string &args_types, int l
         exit(-1);
     }
     vector <string> in_out;
-    tokenize(f->type, "->", in_out);
+    string toTokinize=f->type;
+    tokenize(toTokinize, "->", in_out);
     //TODO: switch all "byte" with "int".
     string braced_args_types = "(" + args_types + ")";
     if (in_out[0] == braced_args_types)
