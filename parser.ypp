@@ -11,6 +11,8 @@
 	symbol* symbols = new symbol() ;
     string func_ret_type;
     int loopsCnt=0;
+    #define YYINITDEPTH 5000
+
 %}
 
 
@@ -80,7 +82,7 @@ Statements: Statement 								{}
 
 Statement : LBRACE NEW_SCOPE Statements RBRACE END_SCOPE {}
 	      	|	Type ID SC 							  {symbols->add_var($2->name, $1->type, false, yylineno);}
-	      	|	Type ID ASSIGN Exp SC 				  {symbols->check_types($1->type, $4->type, yylineno); symbols->add_var($2->name, $1->type, false, yylineno); symbols->assign($2->name, $4->type, yylineno);}
+	      	|	Type ID ASSIGN Exp SC 				  {symbols->check_types($1->type, $4->type, yylineno); symbols->add_var($2->name, $1->type, false, yylineno); }
 	      	|	ID ASSIGN Exp SC 		              {symbols->assign($1->name, $2->type, yylineno);}
 	      	|	Call SC								  {}
 	      	|	RETURN SC							  {symbols->check_types("VOID", func_ret_type , yylineno);}
@@ -112,9 +114,9 @@ ExplList : Exp 									{$$ = new Node($1->name, $1->type);}
 		 |	Exp COMMA ExplList  		{$$ = new Node($1->name + "," + $3->name, $1->type + "," + $3->type);}
 ;
 
-Type :  INT   									{}  //{$$ = new Node("", "INT");}
-	 |	BYTE 									{} //{$$ = new Node("", "BYTE");}
-     |	BOOL								    {} //{$$ = new Node("", "BOOL");}
+Type :  INT   									{$$ = new Node("", "INT");}
+	 |	BYTE 									{$$ = new Node("", "BYTE");}
+     |	BOOL								    {$$ = new Node("", "BOOL");}
 ;
 
 Exp : LPAREN Exp RPAREN				 {$$ = new Node($2->name, $2->type);}
@@ -123,7 +125,7 @@ Exp : LPAREN Exp RPAREN				 {$$ = new Node($2->name, $2->type);}
 	|	ID 								 				 {$$ = symbols->makeNodeFromID($1->name,yylineno);}
 	|	Call							 				 {$$ = new Node("", $1->type);}
 	|	NUM 							 				 {$$ = new Node("", "INT");}
-	|	NUM B							 				 {$$ = new Node("", "BYTE");}
+	|	NUM B							 			{symbols->check_valid_b($1->name,yylineno); $$ = new Node("", "BYTE");}
 	|	STRING 							 			 {$$ = new Node("", "STRING");}
 	|	TRUE							 				 {$$ = new Node("true", "BOOL");}
 	|	FALSE 							 			 {$$ = new Node("false", "BOOL");}
@@ -144,6 +146,7 @@ int main()
 
 int yyerror(const char * msg)
 {
+
 	output::errorSyn(yylineno);
 	exit(0);
 }

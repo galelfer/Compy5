@@ -211,3 +211,11 @@ void symbol::onlyOneMain(int lineno , const string &name){
         exit(-1);
     }
 }
+
+void symbol::check_valid_b(const string &name , int lineno){
+    if(stoi(name)>255){
+        output::errorByteTooLarge(lineno,name);
+        exit(-1);
+    }
+
+}
