@@ -88,7 +88,7 @@ Statement : LBRACE NEW_SCOPE Statements RBRACE END_SCOPE {}
 	      	|	Call SC								  {}
 	      	|	RETURN SC							  {symbols->check_types("VOID", func_ret_type , yylineno);}
 	      	|	RETURN Exp SC 						  {symbols->check_types($2->type, func_ret_type , yylineno);}
-	      	|	IF NEW_SCOPE LPAREN Exp RPAREN CHECK_TYPE Statement END_SCOPE ELSE NEW_SCOPE Statement END_SCOPE 
+	      	|	IF NEW_SCOPE LPAREN Exp RPAREN CHECK_TYPE Statement END_SCOPE ELSE NEW_SCOPE Statement END_SCOPE
 	      	|	IF NEW_SCOPE LPAREN Exp RPAREN CHECK_TYPE Statement  END_SCOPE
 	      	|	WHILE LOOPSCNT NEW_SCOPE LPAREN Exp RPAREN CHECK_TYPE Statement END_SCOPE ELSE NEW_SCOPE Statement  END_SCOPE {loopsCnt--;}
 	      	|	WHILE LOOPSCNT NEW_SCOPE LPAREN Exp RPAREN CHECK_TYPE Statement END_SCOPE {loopsCnt--;}
@@ -121,21 +121,21 @@ Type :  INT   									{$$ = new Node("", "INT");}
      |	BOOL								    {$$ = new Node("", "BOOL");}
 ;
 
-Exp : LPAREN Exp RPAREN				 {exp_type=$2->type; $$ = new Node($2->name, $2->type);}
-	|	Exp PREBINOP Exp				 	 {symbols->check_types($1->type, "INT", yylineno); symbols->check_types($3->type, "INT", yylineno); $$ = new Node("", symbols->larger($1->type, $3->type));}
-	|	Exp POSTBINOP Exp				 	 {symbols->check_types($1->type, "INT", yylineno); symbols->check_types($3->type, "INT", yylineno); $$ = new Node("", symbols->larger($1->type, $3->type));}
-	|	ID 								 				 {$$ = symbols->makeNodeFromID($1->name,yylineno);}
-	|	Call							 				 {$$ = new Node("", $1->type);}
-	|	NUM 							 				 {$$ = new Node("", "INT");}
-	|	NUM B							 			{symbols->check_valid_b($1->name,yylineno); $$ = new Node("", "BYTE");}
-	|	STRING 							 			 {$$ = new Node("", "STRING");}
-	|	TRUE							 				 {$$ = new Node("true", "BOOL");}
-	|	FALSE 							 			 {$$ = new Node("false", "BOOL");}
-	|	NOT Exp 						 			 {symbols->check_types($2->type, "BOOL", yylineno); $$ = new Node("", "BOOL");}
-	|	Exp AND Exp 					 		 {symbols->check_types($1->type, "BOOL", yylineno); symbols->check_types($3->type, "BOOL", yylineno); $$ = new Node("", "BOOL");}
-	|	Exp OR Exp 						 		 {symbols->check_types($1->type, "BOOL", yylineno); symbols->check_types($3->type, "BOOL", yylineno); $$ = new Node("", "BOOL");}
-	|	Exp PRERELOP Exp 		 	     {symbols->check_types($1->type, "INT", yylineno); symbols->check_types($3->type, "INT", yylineno); $$ = new Node("", "BOOL");}
-	|	Exp POSTRELOP Exp 		 		 {symbols->check_types($1->type, "INT", yylineno); symbols->check_types($3->type, "INT", yylineno); $$ = new Node("", "BOOL");}
+Exp : LPAREN Exp RPAREN				{exp_type=$2->type; $$ = new Node($2->name, $2->type);}
+	|	Exp PREBINOP Exp			{symbols->check_types($1->type, "INT", yylineno); symbols->check_types($3->type, "INT", yylineno); $$ = new Node("", symbols->larger($1->type, $3->type)); exp_type=$$->type;}
+	|	Exp POSTBINOP Exp			{symbols->check_types($1->type, "INT", yylineno); symbols->check_types($3->type, "INT", yylineno); $$ = new Node("", symbols->larger($1->type, $3->type));exp_type=$$->type;}
+	|	ID 								 				 {$$ = symbols->makeNodeFromID($1->name,yylineno); exp_type=$$->type;}
+	|	Call							 				 {$$ = new Node("", $1->type); exp_type=$$->type;}
+	|	NUM 							 				 {$$ = new Node("", "INT"); exp_type=$$->type;}
+	|	NUM B							 			{symbols->check_valid_b($1->name,yylineno); $$ = new Node("", "BYTE");exp_type=$$->type;}
+	|	STRING 							 			 {$$ = new Node("", "STRING"); exp_type=$$->type;}
+	|	TRUE							 				 {$$ = new Node("true", "BOOL"); exp_type=$$->type;}
+	|	FALSE 							 			 {$$ = new Node("false", "BOOL"); exp_type=$$->type;}
+	|	NOT Exp 						 			 {symbols->check_types($2->type, "BOOL", yylineno); $$ = new Node("", "BOOL"); exp_type=$$->type;}
+	|	Exp AND Exp 					 		 {symbols->check_types($1->type, "BOOL", yylineno); symbols->check_types($3->type, "BOOL", yylineno); $$ = new Node("", "BOOL"); exp_type=$$->type;}
+	|	Exp OR Exp 						 		 {symbols->check_types($1->type, "BOOL", yylineno); symbols->check_types($3->type, "BOOL", yylineno); $$ = new Node("", "BOOL"); exp_type=$$->type;}
+	|	Exp PRERELOP Exp 		 	     {symbols->check_types($1->type, "INT", yylineno); symbols->check_types($3->type, "INT", yylineno); $$ = new Node("", "BOOL"); exp_type=$$->type;}
+	|	Exp POSTRELOP Exp 		 		 {symbols->check_types($1->type, "INT", yylineno); symbols->check_types($3->type, "INT", yylineno); $$ = new Node("", "BOOL"); exp_type=$$->type;}
 ;
 
 
