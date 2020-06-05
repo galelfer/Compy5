@@ -66,6 +66,8 @@ public:
     void insideLoop(int loopsCnt , string kind , int lineno);
 
     void onlyOneMain(int lineno , const string &name);
+
+    void check_valid_b(const string &name , int lineno);
 };
 
 
