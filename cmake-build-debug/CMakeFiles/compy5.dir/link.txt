@@ -1,3 +1,1 @@
-"C:\Program Files\JetBrains\CLion 2020.1.1\bin\cmake\win\bin\cmake.exe" -E remove -f CMakeFiles\compy5.dir/objects.a
-C:\TDM-GCC-64\bin\ar.exe cr CMakeFiles\compy5.dir/objects.a @CMakeFiles\compy5.dir\objects1.rsp
-C:\TDM-GCC-64\bin\g++.exe -g   -Wl,--whole-archive CMakeFiles\compy5.dir/objects.a -Wl,--no-whole-archive  -o compy5.exe -Wl,--out-implib,libcompy5.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\compy5.dir\linklibs.rsp
+/usr/bin/c++.exe -g  -Wl,--enable-auto-import CMakeFiles/compy5.dir/main.cpp.o CMakeFiles/compy5.dir/hw3_output.cpp.o CMakeFiles/compy5.dir/hw3_aux.cpp.o CMakeFiles/compy5.dir/bp.cpp.o  -o compy5.exe -Wl,--out-implib,libcompy5.dll.a -Wl,--major-image-version,0,--minor-image-version,0 
