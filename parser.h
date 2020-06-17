@@ -2,11 +2,11 @@
 // Created by ezoabi on 31/05/2020.
 //
 
-#ifndef COMPY3_PARSER_H
-#define COMPY3_PARSER_H
+#ifndef COMPY5_PARSER_H
+#define COMPY5_PARSER_H
 
-#ifndef FOR_COMPI_PARSER_H
-#define FOR_COMPI_PARSER_H
+#ifndef FOR_COMPY_PARSER_H
+#define FOR_COMPY_PARSER_H
 
 #include "hw3_output.hpp"
 #define YYSTYPE Node*
@@ -23,7 +23,7 @@ public:
     Node(const string &name, const string &type) : name(name), type(type), value("") {}
 };
 
-#endif //FOR_COMPI_PARSER_H
+#endif //FOR_COMPY_PARSER_H
 
 
-#endif //COMPY3_PARSER_H
+#endif //COMPY5_PARSER_H

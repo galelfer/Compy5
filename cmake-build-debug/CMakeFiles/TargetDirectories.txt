@@ -1,3 +1,3 @@
-C:/Users/ezoabi/Documents/GitHub/Compy-HW3/cmake-build-debug/CMakeFiles/compy3.dir
-C:/Users/ezoabi/Documents/GitHub/Compy-HW3/cmake-build-debug/CMakeFiles/edit_cache.dir
-C:/Users/ezoabi/Documents/GitHub/Compy-HW3/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/cygdrive/c/Users/Dell/Documents/GitHub/Compy5/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/cygdrive/c/Users/Dell/Documents/GitHub/Compy5/cmake-build-debug/CMakeFiles/compy5.dir
+/cygdrive/c/Users/Dell/Documents/GitHub/Compy5/cmake-build-debug/CMakeFiles/edit_cache.dir

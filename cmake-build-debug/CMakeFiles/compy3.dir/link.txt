@@ -1,3 +1,1 @@
-"C:\Program Files\JetBrains\CLion 2020.1.1\bin\cmake\win\bin\cmake.exe" -E remove -f CMakeFiles\compy3.dir/objects.a
-C:\TDM-GCC-64\bin\ar.exe cr CMakeFiles\compy3.dir/objects.a @CMakeFiles\compy3.dir\objects1.rsp
-C:\TDM-GCC-64\bin\g++.exe -g   -Wl,--whole-archive CMakeFiles\compy3.dir/objects.a -Wl,--no-whole-archive  -o compy3.exe -Wl,--out-implib,libcompy3.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\compy3.dir\linklibs.rsp
+/usr/bin/c++.exe -g  -Wl,--enable-auto-import CMakeFiles/compy3.dir/main.cpp.o CMakeFiles/compy3.dir/bp.cpp.o CMakeFiles/compy3.dir/hw3_aux.cpp.o CMakeFiles/compy3.dir/hw3_output.cpp.o  -o compy3.exe -Wl,--out-implib,libcompy3.dll.a -Wl,--major-image-version,0,--minor-image-version,0 
