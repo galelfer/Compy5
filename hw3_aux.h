@@ -1,5 +1,5 @@
-#ifndef COMPY3_HW3_AUX_H
-#define COMPY3_HW3_AUX_H
+#ifndef COMPY5_HW5_AUX_H
+#define COMPY5_HW5_AUX_H
 
 #include "parser.h"
 #include <iostream>
@@ -71,4 +71,4 @@ public:
 };
 
 
-#endif //COMPY3_HW3_AUX_H
+#endif //COMPY5_HW5_AUX_H
