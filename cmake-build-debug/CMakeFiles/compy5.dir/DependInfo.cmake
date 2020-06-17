@@ -4,10 +4,10 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
-  "C:/Users/ezoabi/CLionProjects/compy5/bp.cpp" "C:/Users/ezoabi/CLionProjects/compy5/cmake-build-debug/CMakeFiles/compy5.dir/bp.cpp.obj"
-  "C:/Users/ezoabi/CLionProjects/compy5/hw3_aux.cpp" "C:/Users/ezoabi/CLionProjects/compy5/cmake-build-debug/CMakeFiles/compy5.dir/hw3_aux.cpp.obj"
-  "C:/Users/ezoabi/CLionProjects/compy5/hw3_output.cpp" "C:/Users/ezoabi/CLionProjects/compy5/cmake-build-debug/CMakeFiles/compy5.dir/hw3_output.cpp.obj"
-  "C:/Users/ezoabi/CLionProjects/compy5/main.cpp" "C:/Users/ezoabi/CLionProjects/compy5/cmake-build-debug/CMakeFiles/compy5.dir/main.cpp.obj"
+  "/cygdrive/c/Users/Dell/Documents/GitHub/Compy5/bp.cpp" "/cygdrive/c/Users/Dell/Documents/GitHub/Compy5/cmake-build-debug/CMakeFiles/compy5.dir/bp.cpp.o"
+  "/cygdrive/c/Users/Dell/Documents/GitHub/Compy5/hw3_aux.cpp" "/cygdrive/c/Users/Dell/Documents/GitHub/Compy5/cmake-build-debug/CMakeFiles/compy5.dir/hw3_aux.cpp.o"
+  "/cygdrive/c/Users/Dell/Documents/GitHub/Compy5/hw3_output.cpp" "/cygdrive/c/Users/Dell/Documents/GitHub/Compy5/cmake-build-debug/CMakeFiles/compy5.dir/hw3_output.cpp.o"
+  "/cygdrive/c/Users/Dell/Documents/GitHub/Compy5/main.cpp" "/cygdrive/c/Users/Dell/Documents/GitHub/Compy5/cmake-build-debug/CMakeFiles/compy5.dir/main.cpp.o"
   )
 set(CMAKE_CXX_COMPILER_ID "GNU")
 

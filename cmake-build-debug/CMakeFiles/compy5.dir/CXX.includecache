@@ -6,9 +6,9 @@
 
 #IncludeRegexTransform: 
 
-C:/Users/ezoabi/CLionProjects/compy5/bp.cpp
+/cygdrive/c/Users/Dell/Documents/GitHub/Compy5/bp.cpp
 bp.hpp
-C:/Users/ezoabi/CLionProjects/compy5/bp.hpp
+/cygdrive/c/Users/Dell/Documents/GitHub/Compy5/bp.hpp
 vector
 -
 iostream
@@ -16,9 +16,51 @@ iostream
 sstream
 -
 
-C:/Users/ezoabi/CLionProjects/compy5/bp.hpp
+/cygdrive/c/Users/Dell/Documents/GitHub/Compy5/bp.hpp
 vector
 -
 string
 -
+
+/cygdrive/c/Users/Dell/Documents/GitHub/Compy5/hw3_aux.cpp
+hw3_output.hpp
+/cygdrive/c/Users/Dell/Documents/GitHub/Compy5/hw3_output.hpp
+hw3_aux.h
+/cygdrive/c/Users/Dell/Documents/GitHub/Compy5/hw3_aux.h
+cstring
+-
+
+/cygdrive/c/Users/Dell/Documents/GitHub/Compy5/hw3_aux.h
+parser.h
+/cygdrive/c/Users/Dell/Documents/GitHub/Compy5/parser.h
+iostream
+-
+sstream
+-
+vector
+-
+string
+-
+
+/cygdrive/c/Users/Dell/Documents/GitHub/Compy5/hw3_output.cpp
+iostream
+-
+hw3_output.hpp
+/cygdrive/c/Users/Dell/Documents/GitHub/Compy5/hw3_output.hpp
+sstream
+-
+
+/cygdrive/c/Users/Dell/Documents/GitHub/Compy5/hw3_output.hpp
+vector
+-
+string
+-
+
+/cygdrive/c/Users/Dell/Documents/GitHub/Compy5/main.cpp
+iostream
+-
+
+/cygdrive/c/Users/Dell/Documents/GitHub/Compy5/parser.h
+hw3_output.hpp
+/cygdrive/c/Users/Dell/Documents/GitHub/Compy5/hw3_output.hpp
 
