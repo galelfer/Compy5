@@ -1,0 +1,24 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+C:/Users/ezoabi/CLionProjects/compy5/bp.cpp
+bp.hpp
+C:/Users/ezoabi/CLionProjects/compy5/bp.hpp
+vector
+-
+iostream
+-
+sstream
+-
+
+C:/Users/ezoabi/CLionProjects/compy5/bp.hpp
+vector
+-
+string
+-
+
