@@ -47,10 +47,10 @@ RM = "C:\Program Files\JetBrains\CLion 2020.1.1\bin\cmake\win\bin\cmake.exe" -E 
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = C:\Users\ezoabi\Documents\GitHub\Compy-HW3
+CMAKE_SOURCE_DIR = C:\Users\ezoabi\CLionProjects\compy5
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = C:\Users\ezoabi\Documents\GitHub\Compy-HW3\cmake-build-debug
+CMAKE_BINARY_DIR = C:\Users\ezoabi\CLionProjects\compy5\cmake-build-debug
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -79,9 +79,9 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start C:\Users\ezoabi\Documents\GitHub\Compy-HW3\cmake-build-debug\CMakeFiles C:\Users\ezoabi\Documents\GitHub\Compy-HW3\cmake-build-debug\CMakeFiles\progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start C:\Users\ezoabi\CLionProjects\compy5\cmake-build-debug\CMakeFiles C:\Users\ezoabi\CLionProjects\compy5\cmake-build-debug\CMakeFiles\progress.marks
 	$(MAKE) -f CMakeFiles\Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start C:\Users\ezoabi\Documents\GitHub\Compy-HW3\cmake-build-debug\CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start C:\Users\ezoabi\CLionProjects\compy5\cmake-build-debug\CMakeFiles 0
 .PHONY : all
 
 # The main clean target
@@ -110,17 +110,44 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named compy3
+# Target rules for targets named compy5
 
 # Build rule for target.
-compy3: cmake_check_build_system
-	$(MAKE) -f CMakeFiles\Makefile2 compy3
-.PHONY : compy3
+compy5: cmake_check_build_system
+	$(MAKE) -f CMakeFiles\Makefile2 compy5
+.PHONY : compy5
 
 # fast build rule for target.
-compy3/fast:
-	$(MAKE) -f CMakeFiles\compy3.dir\build.make CMakeFiles/compy3.dir/build
-.PHONY : compy3/fast
+compy5/fast:
+	$(MAKE) -f CMakeFiles\compy5.dir\build.make CMakeFiles/compy5.dir/build
+.PHONY : compy5/fast
+
+bp.obj: bp.cpp.obj
+
+.PHONY : bp.obj
+
+# target to build an object file
+bp.cpp.obj:
+	$(MAKE) -f CMakeFiles\compy5.dir\build.make CMakeFiles/compy5.dir/bp.cpp.obj
+.PHONY : bp.cpp.obj
+
+bp.i: bp.cpp.i
+
+.PHONY : bp.i
+
+# target to preprocess a source file
+bp.cpp.i:
+	$(MAKE) -f CMakeFiles\compy5.dir\build.make CMakeFiles/compy5.dir/bp.cpp.i
+.PHONY : bp.cpp.i
+
+bp.s: bp.cpp.s
+
+.PHONY : bp.s
+
+# target to generate assembly for a file
+bp.cpp.s:
+	$(MAKE) -f CMakeFiles\compy5.dir\build.make CMakeFiles/compy5.dir/bp.cpp.s
+.PHONY : bp.cpp.s
 
 hw3_aux.obj: hw3_aux.cpp.obj
 
@@ -128,7 +155,7 @@ hw3_aux.obj: hw3_aux.cpp.obj
 
 # target to build an object file
 hw3_aux.cpp.obj:
-	$(MAKE) -f CMakeFiles\compy3.dir\build.make CMakeFiles/compy3.dir/hw3_aux.cpp.obj
+	$(MAKE) -f CMakeFiles\compy5.dir\build.make CMakeFiles/compy5.dir/hw3_aux.cpp.obj
 .PHONY : hw3_aux.cpp.obj
 
 hw3_aux.i: hw3_aux.cpp.i
@@ -137,7 +164,7 @@ hw3_aux.i: hw3_aux.cpp.i
 
 # target to preprocess a source file
 hw3_aux.cpp.i:
-	$(MAKE) -f CMakeFiles\compy3.dir\build.make CMakeFiles/compy3.dir/hw3_aux.cpp.i
+	$(MAKE) -f CMakeFiles\compy5.dir\build.make CMakeFiles/compy5.dir/hw3_aux.cpp.i
 .PHONY : hw3_aux.cpp.i
 
 hw3_aux.s: hw3_aux.cpp.s
@@ -146,7 +173,7 @@ hw3_aux.s: hw3_aux.cpp.s
 
 # target to generate assembly for a file
 hw3_aux.cpp.s:
-	$(MAKE) -f CMakeFiles\compy3.dir\build.make CMakeFiles/compy3.dir/hw3_aux.cpp.s
+	$(MAKE) -f CMakeFiles\compy5.dir\build.make CMakeFiles/compy5.dir/hw3_aux.cpp.s
 .PHONY : hw3_aux.cpp.s
 
 hw3_output.obj: hw3_output.cpp.obj
@@ -155,7 +182,7 @@ hw3_output.obj: hw3_output.cpp.obj
 
 # target to build an object file
 hw3_output.cpp.obj:
-	$(MAKE) -f CMakeFiles\compy3.dir\build.make CMakeFiles/compy3.dir/hw3_output.cpp.obj
+	$(MAKE) -f CMakeFiles\compy5.dir\build.make CMakeFiles/compy5.dir/hw3_output.cpp.obj
 .PHONY : hw3_output.cpp.obj
 
 hw3_output.i: hw3_output.cpp.i
@@ -164,7 +191,7 @@ hw3_output.i: hw3_output.cpp.i
 
 # target to preprocess a source file
 hw3_output.cpp.i:
-	$(MAKE) -f CMakeFiles\compy3.dir\build.make CMakeFiles/compy3.dir/hw3_output.cpp.i
+	$(MAKE) -f CMakeFiles\compy5.dir\build.make CMakeFiles/compy5.dir/hw3_output.cpp.i
 .PHONY : hw3_output.cpp.i
 
 hw3_output.s: hw3_output.cpp.s
@@ -173,7 +200,7 @@ hw3_output.s: hw3_output.cpp.s
 
 # target to generate assembly for a file
 hw3_output.cpp.s:
-	$(MAKE) -f CMakeFiles\compy3.dir\build.make CMakeFiles/compy3.dir/hw3_output.cpp.s
+	$(MAKE) -f CMakeFiles\compy5.dir\build.make CMakeFiles/compy5.dir/hw3_output.cpp.s
 .PHONY : hw3_output.cpp.s
 
 main.obj: main.cpp.obj
@@ -182,7 +209,7 @@ main.obj: main.cpp.obj
 
 # target to build an object file
 main.cpp.obj:
-	$(MAKE) -f CMakeFiles\compy3.dir\build.make CMakeFiles/compy3.dir/main.cpp.obj
+	$(MAKE) -f CMakeFiles\compy5.dir\build.make CMakeFiles/compy5.dir/main.cpp.obj
 .PHONY : main.cpp.obj
 
 main.i: main.cpp.i
@@ -191,7 +218,7 @@ main.i: main.cpp.i
 
 # target to preprocess a source file
 main.cpp.i:
-	$(MAKE) -f CMakeFiles\compy3.dir\build.make CMakeFiles/compy3.dir/main.cpp.i
+	$(MAKE) -f CMakeFiles\compy5.dir\build.make CMakeFiles/compy5.dir/main.cpp.i
 .PHONY : main.cpp.i
 
 main.s: main.cpp.s
@@ -200,7 +227,7 @@ main.s: main.cpp.s
 
 # target to generate assembly for a file
 main.cpp.s:
-	$(MAKE) -f CMakeFiles\compy3.dir\build.make CMakeFiles/compy3.dir/main.cpp.s
+	$(MAKE) -f CMakeFiles\compy5.dir\build.make CMakeFiles/compy5.dir/main.cpp.s
 .PHONY : main.cpp.s
 
 # Help Target
@@ -209,9 +236,12 @@ help:
 	@echo ... all (the default if no target is provided)
 	@echo ... clean
 	@echo ... depend
-	@echo ... compy3
+	@echo ... compy5
 	@echo ... edit_cache
 	@echo ... rebuild_cache
+	@echo ... bp.obj
+	@echo ... bp.i
+	@echo ... bp.s
 	@echo ... hw3_aux.obj
 	@echo ... hw3_aux.i
 	@echo ... hw3_aux.s

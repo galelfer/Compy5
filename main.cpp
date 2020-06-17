@@ -1,4 +1,6 @@
-//
-// Created by ezoabi on 03/06/2020.
-//
+#include <iostream>
 
+int main() {
+    std::cout << "Hello, World!" << std::endl;
+    return 0;
+}

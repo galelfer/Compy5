@@ -43,16 +43,16 @@ RM = "C:\Program Files\JetBrains\CLion 2020.1.1\bin\cmake\win\bin\cmake.exe" -E 
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = C:\Users\ezoabi\Documents\GitHub\Compy-HW3
+CMAKE_SOURCE_DIR = C:\Users\ezoabi\CLionProjects\compy5
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = C:\Users\ezoabi\Documents\GitHub\Compy-HW3\cmake-build-debug
+CMAKE_BINARY_DIR = C:\Users\ezoabi\CLionProjects\compy5\cmake-build-debug
 
 #=============================================================================
 # Directory level rules for the build root directory
 
 # The main recursive "all" target.
-all: CMakeFiles/compy3.dir/all
+all: CMakeFiles/compy5.dir/all
 
 .PHONY : all
 
@@ -62,36 +62,36 @@ preinstall:
 .PHONY : preinstall
 
 # The main recursive "clean" target.
-clean: CMakeFiles/compy3.dir/clean
+clean: CMakeFiles/compy5.dir/clean
 
 .PHONY : clean
 
 #=============================================================================
-# Target rules for target CMakeFiles/compy3.dir
+# Target rules for target CMakeFiles/compy5.dir
 
 # All Build rule for target.
-CMakeFiles/compy3.dir/all:
-	$(MAKE) -f CMakeFiles\compy3.dir\build.make CMakeFiles/compy3.dir/depend
-	$(MAKE) -f CMakeFiles\compy3.dir\build.make CMakeFiles/compy3.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=C:\Users\ezoabi\Documents\GitHub\Compy-HW3\cmake-build-debug\CMakeFiles --progress-num=1,2,3,4 "Built target compy3"
-.PHONY : CMakeFiles/compy3.dir/all
+CMakeFiles/compy5.dir/all:
+	$(MAKE) -f CMakeFiles\compy5.dir\build.make CMakeFiles/compy5.dir/depend
+	$(MAKE) -f CMakeFiles\compy5.dir\build.make CMakeFiles/compy5.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=C:\Users\ezoabi\CLionProjects\compy5\cmake-build-debug\CMakeFiles --progress-num=1,2,3,4,5 "Built target compy5"
+.PHONY : CMakeFiles/compy5.dir/all
 
 # Build rule for subdir invocation for target.
-CMakeFiles/compy3.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start C:\Users\ezoabi\Documents\GitHub\Compy-HW3\cmake-build-debug\CMakeFiles 4
-	$(MAKE) -f CMakeFiles\Makefile2 CMakeFiles/compy3.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start C:\Users\ezoabi\Documents\GitHub\Compy-HW3\cmake-build-debug\CMakeFiles 0
-.PHONY : CMakeFiles/compy3.dir/rule
+CMakeFiles/compy5.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start C:\Users\ezoabi\CLionProjects\compy5\cmake-build-debug\CMakeFiles 5
+	$(MAKE) -f CMakeFiles\Makefile2 CMakeFiles/compy5.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start C:\Users\ezoabi\CLionProjects\compy5\cmake-build-debug\CMakeFiles 0
+.PHONY : CMakeFiles/compy5.dir/rule
 
 # Convenience name for target.
-compy3: CMakeFiles/compy3.dir/rule
+compy5: CMakeFiles/compy5.dir/rule
 
-.PHONY : compy3
+.PHONY : compy5
 
 # clean rule for target.
-CMakeFiles/compy3.dir/clean:
-	$(MAKE) -f CMakeFiles\compy3.dir\build.make CMakeFiles/compy3.dir/clean
-.PHONY : CMakeFiles/compy3.dir/clean
+CMakeFiles/compy5.dir/clean:
+	$(MAKE) -f CMakeFiles\compy5.dir\build.make CMakeFiles/compy5.dir/clean
+.PHONY : CMakeFiles/compy5.dir/clean
 
 #=============================================================================
 # Special targets to cleanup operation of make.

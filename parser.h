@@ -1,6 +1,3 @@
-//
-// Created by ezoabi on 31/05/2020.
-//
 
 #ifndef COMPY3_PARSER_H
 #define COMPY3_PARSER_H

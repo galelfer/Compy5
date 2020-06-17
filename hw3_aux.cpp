@@ -1,7 +1,3 @@
-//
-// Created by ezoabi on 31/05/2020.
-//
-
 #include "hw3_output.hpp"
 #include "hw3_aux.h"
 #include <cstring>
