@@ -1,3 +1,0 @@
-/cygdrive/c/Users/Dell/Documents/GitHub/Compy5/cmake-build-debug/CMakeFiles/rebuild_cache.dir
-/cygdrive/c/Users/Dell/Documents/GitHub/Compy5/cmake-build-debug/CMakeFiles/compy5.dir
-/cygdrive/c/Users/Dell/Documents/GitHub/Compy5/cmake-build-debug/CMakeFiles/edit_cache.dir
