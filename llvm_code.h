@@ -5,7 +5,6 @@
 #include <iostream>
 #include "parser.h"
 
-
 using namespace std;
 
 //Global Vars
@@ -14,10 +13,7 @@ int REGS_IDX=1;
 //Funcs decl
 
 string freshVar();
-string add(string type1 , string var1 , string type2 , string var2);
-string sub(string type1 , string var1 , string type2 , string var2);
-string mul(string type1 , string var1 , string type2 , string var2);
-string div(string type1 , string var1 , string type2 , string var2);
+void BINOP_proc(Node* ret, Node* arg1, Node* op, Node* arg2);
 
 
 
