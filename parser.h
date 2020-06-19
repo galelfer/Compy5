@@ -6,8 +6,11 @@
 #define FOR_COMPI_PARSER_H
 
 #include "hw3_output.hpp"
+#include "bp.hpp"
 #define YYSTYPE Node*
 extern int yylineno;
+
+static CodeBuffer& CB = CodeBuffer::instance();
 
 
 class Node {

@@ -204,6 +204,33 @@ hw3_output.cpp.s:
 	$(MAKE) -f CMakeFiles/compy5.dir/build.make CMakeFiles/compy5.dir/hw3_output.cpp.s
 .PHONY : hw3_output.cpp.s
 
+llvm_code.o: llvm_code.cpp.o
+
+.PHONY : llvm_code.o
+
+# target to build an object file
+llvm_code.cpp.o:
+	$(MAKE) -f CMakeFiles/compy5.dir/build.make CMakeFiles/compy5.dir/llvm_code.cpp.o
+.PHONY : llvm_code.cpp.o
+
+llvm_code.i: llvm_code.cpp.i
+
+.PHONY : llvm_code.i
+
+# target to preprocess a source file
+llvm_code.cpp.i:
+	$(MAKE) -f CMakeFiles/compy5.dir/build.make CMakeFiles/compy5.dir/llvm_code.cpp.i
+.PHONY : llvm_code.cpp.i
+
+llvm_code.s: llvm_code.cpp.s
+
+.PHONY : llvm_code.s
+
+# target to generate assembly for a file
+llvm_code.cpp.s:
+	$(MAKE) -f CMakeFiles/compy5.dir/build.make CMakeFiles/compy5.dir/llvm_code.cpp.s
+.PHONY : llvm_code.cpp.s
+
 main.o: main.cpp.o
 
 .PHONY : main.o
@@ -249,6 +276,9 @@ help:
 	@echo "... hw3_output.o"
 	@echo "... hw3_output.i"
 	@echo "... hw3_output.s"
+	@echo "... llvm_code.o"
+	@echo "... llvm_code.i"
+	@echo "... llvm_code.s"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"
