@@ -98,6 +98,12 @@
 		<Unit filename="/cygdrive/c/Users/Dell/Documents/GitHub/Compy5/hw3_output.hpp">
 			<Option target="compy5"/>
 		</Unit>
+		<Unit filename="/cygdrive/c/Users/Dell/Documents/GitHub/Compy5/llvm_code.cpp">
+			<Option target="compy5"/>
+		</Unit>
+		<Unit filename="/cygdrive/c/Users/Dell/Documents/GitHub/Compy5/llvm_code.h">
+			<Option target="compy5"/>
+		</Unit>
 		<Unit filename="/cygdrive/c/Users/Dell/Documents/GitHub/Compy5/main.cpp">
 			<Option target="compy5"/>
 		</Unit>
