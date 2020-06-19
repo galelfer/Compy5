@@ -65,13 +65,13 @@ void BINOP_proc(Node* ret, Node* arg1, Node* op, Node* arg2) {
     CB.emit(arg1->reg + " = i32 " + a );
     CB.emit(arg2->reg + " = i32 " + b );
     if(op->name == "+") {
-        add(arg1->reg, arg2->reg, ret);   // changed according to lines 66 + 67  (previously :- add(a, b, ret);)
+        add(arg1->reg, arg2->reg, ret);   // changed according to lines 63 + 64  (previously :- add(a, b, ret);)
     } else if(op->name == "-") {
-        sub(arg1->reg, arg2->reg, ret);  // changed according to lines 66 + 67  (previously :- sub(a, b, ret);)
+        sub(arg1->reg, arg2->reg, ret);  // changed according to lines 63 + 64  (previously :- sub(a, b, ret);)
     } else if(op->name == "*") {
-        mul(arg1->reg, arg2->reg, ret);  // changed according to lines 66 + 67  (previously :- mul(a, b, ret);)
+        mul(arg1->reg, arg2->reg, ret);  // changed according to lines 63 + 64  (previously :- mul(a, b, ret);)
     } else {
-        div(arg1->reg, arg2->reg, ret); // changed according to lines 66 + 67  (previously :- div(a, b, ret);)
+        div(arg1->reg, arg2->reg, ret); // changed according to lines 63 + 64  (previously :- div(a, b, ret);)
     }
 }
 
