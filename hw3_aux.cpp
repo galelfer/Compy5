@@ -25,8 +25,13 @@ const arg *symbol::get_var(const string &unique_name) {
 
 Node *symbol::makeNodeFromID(const string &id, int lineno) {
     const arg *var = get_var(id);
-    if (var != nullptr)
+    if (var != nullptr) {
+        //TODO: Freshvar() - make a new reg for value.
+        // (llvm) find ID value by it's offset in llvm_stack. - getelemntptr returns ptr. than we need to freshVar another reg for ptr.
+        // (llvm) load ID value into the new reg.
+        // c++: tell Node the reg_num.
         return new Node(var->name, var->type);
+    }
 
     output::errorUndef(lineno, id);
     exit(-1);
@@ -95,6 +100,9 @@ void symbol::decl_func(const string &name, const string &type, const string &ret
     string func_type = output::makeFunctionType(ret_val, types);
     add_func(name, func_type, lineno);
     add_scope();
+    //TODO: open a new stack, with enough place for args + 50 (or 2 different stacks). - > emit("alloca..") (llvm).
+    // C++: update llvm_stack_reg to be it's register (and input_llvm_stack_reg as well?).
+    // recommanded: init NUM counter for FreshVar() so it won't overflow.
     for (int i = 0; i < (int) args.size(); i++) {
         const arg* tmp = get_var_type(args[i],types[i]);
                 if(tmp!=nullptr){

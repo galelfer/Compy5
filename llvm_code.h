@@ -3,16 +3,17 @@
 
 #include <string>
 #include <iostream>
-using namespace std ;
+#include "parser.h"
 
-//Global variables
+using namespace std;
 
-int NUM=1;
+//Global Vars
+int REGS_IDX=1;
 
-
-//Funcs Decl
+//Funcs decl
 
 string freshVar();
+void BINOP_proc(Node* ret, Node* arg1, Node* op, Node* arg2);
 
 
 

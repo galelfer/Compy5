@@ -26,6 +26,8 @@ class symbol {
 public:
     vector <table> t_stack;
     vector <ll> o_stack;
+    string llvm_stack_reg;
+    string input_llvm_stack_reg;
 
     symbol() {
         table global_scope;
