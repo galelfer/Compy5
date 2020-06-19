@@ -3,9 +3,16 @@
 
 #include <string>
 #include <iostream>
+using namespace std ;
+
+//Global variables
+
+int NUM=1;
 
 
+//Funcs Decl
 
+string freshVar();
 
 
 
