@@ -1,7 +1,6 @@
 #include "llvm_code.h"
 
 
-
 string crush_code() {
     string CC = CB.genLabel();
 }
@@ -19,6 +18,7 @@ string bstoi(string bs) {
 void add(string reg_a, string reg_b, Node* ret){
 //    string ta = freshVar();
 //    CB.emit(ta + " = load i32, i32* " + a.reg);
+
     CB.emit(ret->reg + " = add i32 " + reg_a + ", " + reg_b);
     //TODO: ret.reg = t1  //resolved line 62!!
 }
@@ -31,7 +31,6 @@ void sub(string reg_a, string reg_b, Node* ret){
 
 void mul(string reg_a, string reg_b, Node* ret){
     CB.emit(ret->reg + " = mul i32 " + reg_a + ", " + reg_b);
-}
 
 
 void div(string a, string b, Node* ret){
@@ -48,13 +47,16 @@ void div(string a, string b, Node* ret){
     CB.bpatch(CB.makelist({line2, SECOND}), CC);
     string OK = CB.genLabel();
     CB.bpatch(CB.makelist({line2, FIRST}), OK);
+
     CB.emit(ret->reg + " = sdiv i32 " + a + ", " + b);
     //TODO: ret.reg = t2 //resolved in line 62!!
+
 }
 
 void BINOP_proc(Node* ret, Node* arg1, Node* op, Node* arg2) {
     string a = (arg1->type == "int") ? arg1->name : bstoi(arg1->name);
     string b = (arg2->type == "int") ? arg2->name : bstoi(arg2->name);
+
     //TODO: string reg_a = arg1.reg ### see line 66 ###
     //TODO: string reg_b = arg2.reg ### see line 67 ###
     arg1->reg = freshVar();
@@ -72,4 +74,5 @@ void BINOP_proc(Node* ret, Node* arg1, Node* op, Node* arg2) {
         div(arg1->reg, arg2->reg, ret); // changed according to lines 66 + 67  (previously :- div(a, b, ret);)
     }
 }
+
 
