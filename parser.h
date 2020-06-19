@@ -10,7 +10,7 @@
 #define YYSTYPE Node*
 extern int yylineno;
 
-static CodeBuffer& buff= CodeBuffer::instance();
+static CodeBuffer& CB = CodeBuffer::instance();
 
 
 class Node {
