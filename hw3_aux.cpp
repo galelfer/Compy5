@@ -1,5 +1,6 @@
-#include "hw3_output.hpp"
+
 #include "hw3_aux.h"
+
 #include <cstring>
 
 
@@ -26,11 +27,13 @@ const arg *symbol::get_var(const string &unique_name) {
 Node *symbol::makeNodeFromID(const string &id, int lineno) {
     const arg *var = get_var(id);
     if (var != nullptr) {
+        string reg = freshVar();
+
         //TODO: Freshvar() - make a new reg for value.
         // (llvm) find ID value by it's offset in llvm_stack. - getelemntptr returns ptr. than we need to freshVar another reg for ptr.
         // (llvm) load ID value into the new reg.
         // c++: tell Node the reg_num.
-        return new Node(var->name, var->type);
+        return new Node(var->name, var->type, "");
     }
 
     output::errorUndef(lineno, id);

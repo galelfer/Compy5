@@ -1,7 +1,7 @@
 #ifndef COMPY3_HW3_AUX_H
 #define COMPY3_HW3_AUX_H
 
-#include "parser.h"
+#include "llvm_code.h"
 #include <iostream>
 #include <sstream>
 #include <vector>
