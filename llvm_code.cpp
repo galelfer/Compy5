@@ -10,6 +10,10 @@ string freshVar(){
     return "%reg"+to_string(REG_IDX++);
 }
 
+void initRegIdx(){
+    REG_IDX=1;
+}
+
 string bstoi(string bs) {
     if(!bs.empty())
         bs.pop_back();

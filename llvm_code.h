@@ -12,6 +12,7 @@ using namespace std;
 //Funcs decl
 
 string freshVar();
+void initRegIdx();
 void BINOP_proc(Node* ret, Node* arg1, Node* op, Node* arg2);
 
 
