@@ -103,16 +103,26 @@ void symbol::decl_func(const string &name, const string &type, const string &ret
     string func_type = output::makeFunctionType(ret_val, types);
     add_func(name, func_type, lineno);
     add_scope();
+    void initRegIdx();
+    input_llvm_stack_reg = freshVar();
+    string input_size = to_string(args.size());
+    CB.emit(input_llvm_stack_reg + " = alloca [" + input_size + " x i32]");
+    llvm_stack_reg = freshVar();
+    CB.emit(llvm_stack_reg + " = alloca [50 x i32]");
     //TODO: open a new stack, with enough place for args + 50 (or 2 different stacks). - > emit("alloca..") (llvm).
     // C++: update llvm_stack_reg to be it's register (and input_llvm_stack_reg as well?).
     // recommanded: init NUM counter for FreshVar() so it won't overflow.
-    for (int i = 0; i < (int) args.size(); i++) {
+    // put all vars in input_llvm_stack.
+    for (int i = 0; i < (int)args.size(); i++) {
         const arg* tmp = get_var_type(args[i],types[i]);
-                if(tmp!=nullptr){
-                    output::errorDef(lineno,args[i]);
-                    exit(-1);
-                }
-        (t_stack.back().emplace_back(arg(args[i], types[i], -i - 1)));
+        if(tmp!=nullptr){
+            output::errorDef(lineno,args[i]);
+            exit(-1);
+        }
+        t_stack.back().emplace_back(arg(args[i], types[i], -i - 1));
+        string address = freshVar();
+        CB.emit(address + " = getelementptr [" + input_size + " x i32], [" + input_size + " x i32]* " + input_llvm_stack_reg + ",i32 0, i32 " + to_string(i));
+        CB.emit("store i32 " + address + ", i32* " + address);
     }
 }
 
