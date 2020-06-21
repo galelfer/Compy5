@@ -7,8 +7,7 @@
 
 using namespace std;
 
-//Global Vars
-int REGS_IDX=1;
+
 
 //Funcs decl
 

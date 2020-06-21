@@ -1,5 +1,4 @@
 %{
-	#include "parser.h"
     #include "llvm_code.h"
 	#include "parser.tab.hpp"
 %}
