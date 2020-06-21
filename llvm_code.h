@@ -3,19 +3,6 @@
 
 #include <string>
 #include <iostream>
-<<<<<<< HEAD
-using namespace std ;
-
-//Global variables
-
-int NUM=1;
-
-
-//Funcs Decl
-
-string freshVar();
-
-=======
 #include "parser.h"
 
 using namespace std;
@@ -27,7 +14,7 @@ int REGS_IDX=1;
 
 string freshVar();
 void BINOP_proc(Node* ret, Node* arg1, Node* op, Node* arg2);
->>>>>>> a4e505bc01d1fef02e204a2b1505538add0ff875
+
 
 
 
