@@ -7,6 +7,7 @@
 
 #include "hw3_output.hpp"
 #include "bp.hpp"
+#include "llvm_code.h"
 #define YYSTYPE Node*
 extern int yylineno;
 
@@ -20,8 +21,8 @@ public:
     string value;
     string reg;
     Node() = default;
-    Node(const string &name, const string &type, const string &value) : name(name), type(type), value(value) {}
-    Node(const string &name, const string &type) : name(name), type(type), value("") {}
+    Node(const string &name, const string &type, const string &value, const string &reg) : name(name), type(type), value(value), reg(reg) {}
+    Node(const string &name, const string &type, const string &reg) : name(name), type(type), value("") , reg(reg) {}
 };
 
 #endif //FOR_COMPI_PARSER_H
