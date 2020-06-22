@@ -69,7 +69,7 @@ Formals : FormalsList   											{$$ = new Node($1->name, $1->type , $1->reg);
         |						    											{$$ = new Node("", "" , "");}
 ;
 
-FormalsList : FormalDecl    									{$$ = new Node($1->name, $1->type , $1->reg);}
+FormalsList : FormalDecl    			      {if(symbols->get_var($1->name,false) != nullptr) {output::errorDef(yylineno,$1->name); exit(-1);} $$ = new Node($1->name, $1->type , $1->reg);}
             |  FormalDecl COMMA FormalsList   {$$ = new Node($1->name + "," + $3->name, $1->type + "," + $3->type, $1->reg + "," + $3->reg);}
 ;
 
@@ -82,8 +82,8 @@ Statements: Statement 								{}
 
 Statement : LBRACE NEW_SCOPE Statements RBRACE END_SCOPE {}
 	      	|	Type ID SC 							  {symbols->add_var($2->name, $1->type, false, yylineno);}
-	      	|	Type ID ASSIGN Exp SC 				  {symbols->check_types($1->type, $4->type, yylineno); symbols->add_var($2->name, $1->type, false, yylineno); }
-	      	|	ID ASSIGN Exp SC 		              {symbols->assign($1->name, $2->type, yylineno);}
+	      	|	Type ID ASSIGN Exp SC 				  {symbols->assign_check_types($1->type, $4->type, yylineno); symbols->add_var($2->name, $1->type, false, yylineno); }
+	      	|	ID ASSIGN Exp SC 		              {symbols->assign($1->name, $3->type, yylineno);}
 	      	|	Call SC								  {}
 	      	|	RETURN SC							  {symbols->check_types("VOID", func_ret_type , yylineno);}
 	      	|	RETURN Exp SC 						  {symbols->check_types($2->type, func_ret_type , yylineno);}

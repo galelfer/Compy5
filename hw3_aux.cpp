@@ -13,10 +13,12 @@ static string replace(string str, string substr1, string substr2)
     return str;
 }
 
-const arg *symbol::get_var(const string &unique_name) {
+const arg *symbol::get_var(const string &unique_name, bool isFunc) {
     for (auto const &table: t_stack) {
         for (auto const &entry : table) {
             if (entry.name == unique_name) {
+                if(isFunc && (entry.type == "INT" || entry.type == "BYTE" || entry.type == "BOOL"  ))
+                    continue;
                 return &entry;
             }
         }
@@ -25,7 +27,7 @@ const arg *symbol::get_var(const string &unique_name) {
 }
 
 Node *symbol::makeNodeFromID(const string &id, int lineno) {
-    const arg *var = get_var(id);
+    const arg *var = get_var(id, false);
     if (var != nullptr) {
         string reg = freshVar();
 
@@ -52,7 +54,7 @@ const arg *symbol::get_var_type(const string &name, const string &type) {
 }
 
 void symbol::add_var(const string &name, const string &type, bool isFunc, int lineno) {
-    if (get_var_type(name, type) != nullptr) {
+    if (get_var(name, isFunc) != nullptr) {
         output::errorDef(lineno, name);
         exit(-1);
     }
@@ -154,8 +156,21 @@ void symbol::assign(const string &name, const string &type, int lineno) {
             output::errorUndef(lineno, name);
             exit(-1);
         }
+        if(get_var_type(name, "BYTE") != nullptr && type=="INT") {
+            output::errorMismatch(lineno);
+            exit(-1);
+        }
     } else if (get_var_type(name, type) == nullptr) {
         output::errorUndef(lineno, name);
+        exit(-1);
+    }
+}
+
+void symbol::assign_check_types(const string &type1, const string &type2, int lineno) {
+    if ((type1 == "INT" && type2 == "BYTE") || (type1 == type2))
+        return;
+    else {
+        output::errorMismatch(lineno);
         exit(-1);
     }
 }
@@ -176,9 +191,9 @@ string symbol::larger(const string &type1, const string &type2) {
 }
 
 string symbol::funcType(const string &func_name, const string &args_types, int lineno) {
-    const arg *f = get_var(func_name);
+    const arg *f = get_var(func_name, true);
     if (f == nullptr) {
-        output::errorUndef(lineno, func_name);
+        output::errorUndefFunc(lineno, func_name);
         exit(-1);
     }
     vector <string> expected_args, received_args, exp_in_out, empty_in;
@@ -220,7 +235,7 @@ void symbol::insideLoop(int loopsCnt, string kind, int lineno) {
 }
 
 void symbol::onlyOneMain(int lineno , const string &name){
-    if((this->get_var(name)!=nullptr) && name=="main"){
+    if((this->get_var(name, true)!=nullptr) && name=="main"){
         output::errorDef(lineno,name);
         exit(-1);
     }
