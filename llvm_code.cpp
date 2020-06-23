@@ -11,7 +11,7 @@ string freshVar(){
 }
 
 void initRegIdx(){
-    REG_IDX=1;
+    REG_IDX=0;
 }
 
 string bstoi(string bs) {

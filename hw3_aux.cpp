@@ -170,6 +170,17 @@ void symbol::assign(const string &name, const string &type, int lineno) {
 }
 
 
+void symbol::init_var_in_llvmStack(const string &name, const string &type, int lineno){
+    string valueReg =freshVar();
+    if(type=="INT" || type=="BYTE" ){
+        CB.emit("valueReg = add i32 0 , 0");
+    }
+    else {
+        // TODO: init valueReg to false!!
+    }
+    assign_value(name , type , lineno , valueReg);
+}
+
 void symbol::assign_value(const string &name, const string &type, int lineno , const string &reg){
 
     const arg* arg1=get_var_type(name, type);
