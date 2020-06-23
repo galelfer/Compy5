@@ -1,5 +1,6 @@
-#include "hw3_output.hpp"
+
 #include "hw3_aux.h"
+
 #include <cstring>
 
 
@@ -12,10 +13,12 @@ static string replace(string str, string substr1, string substr2)
     return str;
 }
 
-const arg *symbol::get_var(const string &unique_name) {
+const arg *symbol::get_var(const string &unique_name, bool isFunc) {
     for (auto const &table: t_stack) {
         for (auto const &entry : table) {
             if (entry.name == unique_name) {
+                if(isFunc && (entry.type == "INT" || entry.type == "BYTE" || entry.type == "BOOL"  ))
+                    continue;
                 return &entry;
             }
         }
@@ -24,13 +27,15 @@ const arg *symbol::get_var(const string &unique_name) {
 }
 
 Node *symbol::makeNodeFromID(const string &id, int lineno) {
-    const arg *var = get_var(id);
+    const arg *var = get_var(id, false);
     if (var != nullptr) {
+        string reg = freshVar();
+
         //TODO: Freshvar() - make a new reg for value.
         // (llvm) find ID value by it's offset in llvm_stack. - getelemntptr returns ptr. than we need to freshVar another reg for ptr.
         // (llvm) load ID value into the new reg.
         // c++: tell Node the reg_num.
-        return new Node(var->name, var->type);
+        return new Node(var->name, var->type, "");
     }
 
     output::errorUndef(lineno, id);
@@ -49,7 +54,7 @@ const arg *symbol::get_var_type(const string &name, const string &type) {
 }
 
 void symbol::add_var(const string &name, const string &type, bool isFunc, int lineno) {
-    if (get_var_type(name, type) != nullptr) {
+    if (get_var(name, isFunc) != nullptr) {
         output::errorDef(lineno, name);
         exit(-1);
     }
@@ -62,6 +67,7 @@ void symbol::add_var(const string &name, const string &type, bool isFunc, int li
     }
 
     t_stack.back().emplace_back(arg(name, type, offset));
+
 }
 
 void symbol::add_func(const string &name, const string &type, int lineno) {
@@ -100,16 +106,24 @@ void symbol::decl_func(const string &name, const string &type, const string &ret
     string func_type = output::makeFunctionType(ret_val, types);
     add_func(name, func_type, lineno);
     add_scope();
-    //TODO: open a new stack, with enough place for args + 50 (or 2 different stacks). - > emit("alloca..") (llvm).
-    // C++: update llvm_stack_reg to be it's register (and input_llvm_stack_reg as well?).
-    // recommanded: init NUM counter for FreshVar() so it won't overflow.
-    for (int i = 0; i < (int) args.size(); i++) {
+    void initRegIdx();
+    input_llvm_stack_reg = freshVar();
+    string input_size = to_string(args.size());
+    if(args.size()>0)
+        CB.emit(input_llvm_stack_reg + " = alloca [" + input_size + " x i32]");
+    llvm_stack_reg = freshVar();
+    CB.emit(llvm_stack_reg + " = alloca [50 x i32]");
+
+    for (int i = 0; i < (int)args.size(); i++) {
         const arg* tmp = get_var_type(args[i],types[i]);
-                if(tmp!=nullptr){
-                    output::errorDef(lineno,args[i]);
-                    exit(-1);
-                }
-        (t_stack.back().emplace_back(arg(args[i], types[i], -i - 1)));
+        if(tmp!=nullptr){
+            output::errorDef(lineno,args[i]);
+            exit(-1);
+        }
+        t_stack.back().emplace_back(arg(args[i], types[i], -i - 1));
+        string address = freshVar();
+        CB.emit(address + " = getelementptr [" + input_size + " x i32], [" + input_size + " x i32]* " + input_llvm_stack_reg + ",i32 0, i32 " + to_string(i));
+        CB.emit("store i32 " + tmp->name + ", i32* " + address); //TODO: change to tmp->reg or tmp->val...?
     }
 }
 
@@ -139,13 +153,37 @@ void symbol::does_main_exist() {
 
 
 void symbol::assign(const string &name, const string &type, int lineno) {
-    if (type == "INT" || type == "BYTE") {
+        if (type == "INT" || type == "BYTE") {
         if (get_var_type(name, "INT") == nullptr && get_var_type(name, "BYTE") == nullptr) {
             output::errorUndef(lineno, name);
             exit(-1);
         }
+        if(get_var_type(name, "BYTE") != nullptr && type=="INT") {
+            output::errorMismatch(lineno);
+            exit(-1);
+        }
     } else if (get_var_type(name, type) == nullptr) {
         output::errorUndef(lineno, name);
+        exit(-1);
+    }
+
+}
+
+
+void symbol::assign_value(const string &name, const string &type, int lineno , const string &reg){
+
+    const arg* arg1=get_var_type(name, type);
+    string varReg =freshVar();
+    CB.emit(varReg + " = getelementprt [50 x i32], [50 x i32]*, " + llvm_stack_reg + ", i32 0, i32 " + to_string(arg1->offset) );
+    CB.emit("store i32 " + reg + ", i32* "+ varReg);
+}
+
+
+void symbol::assign_check_types(const string &type1, const string &type2, int lineno) {
+    if ((type1 == "INT" && type2 == "BYTE") || (type1 == type2))
+        return;
+    else {
+        output::errorMismatch(lineno);
         exit(-1);
     }
 }
@@ -159,6 +197,9 @@ void symbol::check_types(const string &type1, const string &type2, int lineno) {
     }
 }
 
+
+
+
 string symbol::larger(const string &type1, const string &type2) {
     if (type1 == "INT" || type2 == "INT")
         return "INT";
@@ -166,9 +207,9 @@ string symbol::larger(const string &type1, const string &type2) {
 }
 
 string symbol::funcType(const string &func_name, const string &args_types, int lineno) {
-    const arg *f = get_var(func_name);
+    const arg *f = get_var(func_name, true);
     if (f == nullptr) {
-        output::errorUndef(lineno, func_name);
+        output::errorUndefFunc(lineno, func_name);
         exit(-1);
     }
     vector <string> expected_args, received_args, exp_in_out, empty_in;
@@ -210,7 +251,7 @@ void symbol::insideLoop(int loopsCnt, string kind, int lineno) {
 }
 
 void symbol::onlyOneMain(int lineno , const string &name){
-    if((this->get_var(name)!=nullptr) && name=="main"){
+    if((this->get_var(name, true)!=nullptr) && name=="main"){
         output::errorDef(lineno,name);
         exit(-1);
     }
@@ -221,5 +262,25 @@ void symbol::check_valid_b(const string &name , int lineno){
         output::errorByteTooLarge(lineno,name);
         exit(-1);
     }
+
+}
+
+void symbol::init_llvm_stack() {
+    CB.emitGlobal("declare i32 @printf(i8*, ...)");
+    CB.emitGlobal("declare void @exit(i32)");
+//constants decl
+    CB.emitGlobal("@.stzero = constant [23 x i8] c\"Error division by zero\\00\"");
+    CB.emitGlobal("@.int_specifier = constant [4 x i8] c\"%d\\0A\\00\"");
+    CB.emitGlobal("@.str_specifier = constant [4 x i8] c\"%s\\0A\\00\"");
+//print functions decl
+    CB.emitGlobal("define void @print(i8*) {");
+    CB.emitGlobal("call i32 (i8*, ...) @printf(i8* getelementptr ([4 x i8], [4 x i8]* @.str_specifier, i32 0, i32 0), i8* %0)");
+    CB.emitGlobal("ret void");
+    CB.emitGlobal("}");
+
+    CB.emitGlobal("define void @printi(i32) {");
+    CB.emitGlobal("call i32 (i8*, ...) @printf(i8* getelementptr ([4 x i8], [4 x i8]* @.int_specifier, i32 0, i32 0), i32 %0)");
+    CB.emitGlobal("ret void");
+    CB.emitGlobal("}");
 
 }

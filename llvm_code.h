@@ -7,12 +7,12 @@
 
 using namespace std;
 
-//Global Vars
-int REGS_IDX=1;
+
 
 //Funcs decl
 
 string freshVar();
+void initRegIdx();
 void BINOP_proc(Node* ret, Node* arg1, Node* op, Node* arg2);
 
 

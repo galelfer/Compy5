@@ -1,5 +1,5 @@
 %{
-	#include "parser.h"
+    #include "llvm_code.h"
 	#include "parser.tab.hpp"
 %}
 
@@ -17,8 +17,8 @@ bool														{yylval= new Node(yytext, "BOOL", "");return BOOL;}
 and														    return AND;
 or														    return OR;
 not														    return NOT;
-true														{yylval = new Node(yytext, "BOOL", "true"); return TRUE;}
-false														{yylval = new Node(yytext, "BOOL", "false"); return FALSE;}
+true														{yylval = new Node(yytext, "BOOL", "true", ""); return TRUE;}
+false														{yylval = new Node(yytext, "BOOL", "false", ""); return FALSE;}
 return														return RETURN;
 if														    return IF;
 else 														return ELSE;
@@ -32,13 +32,13 @@ continue 													return CONTINUE;
 "{" 														return LBRACE;
 "}"														    return RBRACE;
 = 														    return ASSIGN;
-(==)|(!=)                                                   {yylval = new Node(yytext, "prerelop"); return PRERELOP;}
-(<)|(>)|(<=)|(>=) 								            {yylval = new Node(yytext, "postrelop"); return POSTRELOP;}
-[+]|[-]														{yylval = new Node(yytext, "prebinop"); return PREBINOP;}
-[*]|[/]														{yylval = new Node(yytext, "postbinop"); return POSTBINOP;}
-[a-zA-Z]([a-zA-Z0-9])* 										{yylval = new Node(yytext, yytext); return ID;}
-0|[1-9]([0-9])* 											{yylval = new Node(yytext, "INT"); return NUM;}
-(\")([^\n\r\"\\]|\\[rnt"\\])+(\")							{yylval = new Node(yytext, "STRING"); return STRING;}
+(==)|(!=)                                                   {yylval = new Node(yytext, "prerelop", ""); return PRERELOP;}
+(<)|(>)|(<=)|(>=) 								            {yylval = new Node(yytext, "postrelop", ""); return POSTRELOP;}
+[+]|[-]														{yylval = new Node(yytext, "prebinop", ""); return PREBINOP;}
+[*]|[/]														{yylval = new Node(yytext, "postbinop", ""); return POSTBINOP;}
+[a-zA-Z]([a-zA-Z0-9])* 										{yylval = new Node(yytext, yytext, freshVar()); return ID;}
+0|[1-9]([0-9])* 											{yylval = new Node(yytext, "INT", yytext ,freshVar()); return NUM;}
+(\")([^\n\r\"\\]|\\[rnt"\\])+(\")							{yylval = new Node(yytext, "STRING", yytext ,freshVar()); return STRING;}
 \/\/[^\r\n]*[\r|\n|\r\n]?									;
 ([\t\n\r ])   												;
 
