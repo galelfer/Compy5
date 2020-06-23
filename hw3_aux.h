@@ -72,6 +72,10 @@ public:
     void check_valid_b(const string &name , int lineno);
 
     void assign_check_types(const string &type1, const string &type2, int lineno);
+
+    void assign_value(const string &name, const string &type, int lineno , const string &reg);
+
+    void init_llvm_stack();
 };
 
 

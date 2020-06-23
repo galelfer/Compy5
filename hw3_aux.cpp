@@ -67,6 +67,7 @@ void symbol::add_var(const string &name, const string &type, bool isFunc, int li
     }
 
     t_stack.back().emplace_back(arg(name, type, offset));
+
 }
 
 void symbol::add_func(const string &name, const string &type, int lineno) {
@@ -108,7 +109,8 @@ void symbol::decl_func(const string &name, const string &type, const string &ret
     void initRegIdx();
     input_llvm_stack_reg = freshVar();
     string input_size = to_string(args.size());
-    CB.emit(input_llvm_stack_reg + " = alloca [" + input_size + " x i32]");
+    if(args.size()>0)
+        CB.emit(input_llvm_stack_reg + " = alloca [" + input_size + " x i32]");
     llvm_stack_reg = freshVar();
     CB.emit(llvm_stack_reg + " = alloca [50 x i32]");
 
@@ -151,7 +153,7 @@ void symbol::does_main_exist() {
 
 
 void symbol::assign(const string &name, const string &type, int lineno) {
-    if (type == "INT" || type == "BYTE") {
+        if (type == "INT" || type == "BYTE") {
         if (get_var_type(name, "INT") == nullptr && get_var_type(name, "BYTE") == nullptr) {
             output::errorUndef(lineno, name);
             exit(-1);
@@ -164,7 +166,18 @@ void symbol::assign(const string &name, const string &type, int lineno) {
         output::errorUndef(lineno, name);
         exit(-1);
     }
+
 }
+
+
+void symbol::assign_value(const string &name, const string &type, int lineno , const string &reg){
+
+    const arg* arg1=get_var_type(name, type);
+    string varReg =freshVar();
+    CB.emit(varReg + " = getelementprt [50 x i32], [50 x i32]*, " + llvm_stack_reg + ", i32 0, i32 " + to_string(arg1->offset) );
+    CB.emit("store i32 " + reg + ", i32* "+ varReg);
+}
+
 
 void symbol::assign_check_types(const string &type1, const string &type2, int lineno) {
     if ((type1 == "INT" && type2 == "BYTE") || (type1 == type2))
@@ -183,6 +196,9 @@ void symbol::check_types(const string &type1, const string &type2, int lineno) {
         exit(-1);
     }
 }
+
+
+
 
 string symbol::larger(const string &type1, const string &type2) {
     if (type1 == "INT" || type2 == "INT")
@@ -246,5 +262,25 @@ void symbol::check_valid_b(const string &name , int lineno){
         output::errorByteTooLarge(lineno,name);
         exit(-1);
     }
+
+}
+
+void symbol::init_llvm_stack() {
+    CB.emitGlobal("declare i32 @printf(i8*, ...)");
+    CB.emitGlobal("declare void @exit(i32)");
+//constants decl
+    CB.emitGlobal("@.stzero = constant [23 x i8] c\"Error division by zero\\00\"");
+    CB.emitGlobal("@.int_specifier = constant [4 x i8] c\"%d\\0A\\00\"");
+    CB.emitGlobal("@.str_specifier = constant [4 x i8] c\"%s\\0A\\00\"");
+//print functions decl
+    CB.emitGlobal("define void @print(i8*) {");
+    CB.emitGlobal("call i32 (i8*, ...) @printf(i8* getelementptr ([4 x i8], [4 x i8]* @.str_specifier, i32 0, i32 0), i8* %0)");
+    CB.emitGlobal("ret void");
+    CB.emitGlobal("}");
+
+    CB.emitGlobal("define void @printi(i32) {");
+    CB.emitGlobal("call i32 (i8*, ...) @printf(i8* getelementptr ([4 x i8], [4 x i8]* @.int_specifier, i32 0, i32 0), i32 %0)");
+    CB.emitGlobal("ret void");
+    CB.emitGlobal("}");
 
 }
