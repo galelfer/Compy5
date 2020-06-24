@@ -57,6 +57,8 @@ public:
 
     void decl_func(const string& name, const string& type, const string& ret_val , string& arg1 , int lineno);
 
+    void finishDeclFunc(string &type);
+
     void PrintScope(table scope);
 
     void init_global_table();

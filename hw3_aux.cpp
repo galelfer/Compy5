@@ -54,8 +54,9 @@ const arg *symbol::get_var_type(const string &name, const string &type) {
 void symbol::forceIntoReg(Node* node) {
     if(node->type == "BYTE") {
         CB.emit(node->reg +" = trunc i32 " + bstoi(node->value) + "to i8");
+        CB.emit(node->reg +" = trunc i32 " + bstoi(node->value) + "to i8");
     } else if (node->type == "STRING") {
-        CB.emit(node->reg +" = " + node->value + "\00");
+        node->reg = emitString(node->value);
     } else CB.emit(node->reg +" = add i32 0, " + node->value);
 }
 
@@ -135,6 +136,12 @@ void symbol::decl_func(const string &name, const string &type, const string &ret
     }
 }
 
+void symbol::finishDeclFunc(string &type) {
+    (type == "VOID") ? CB.emit("ret void") : CB.emit("ret i32 0");
+    CB.emit("}");
+}
+
+
 void symbol::PrintScope(table scope) {
     for (int i = 0; i < scope.size(); ++i) {
         output::printID(scope[i].name, scope[i].offset, scope[i].type);
@@ -178,7 +185,7 @@ void symbol::assign(const string &name, const string &type, int lineno) {
 void symbol::init_var_in_llvmStack(const string &name, const string &type, int lineno) {
     string valueReg = freshVar();
     if (type == "INT" || type == "BYTE") {
-        CB.emit("valueReg = add i32 0 , 0");
+        CB.emit(valueReg + " = add i32 0 , 0");
     } else {
         // TODO: init valueReg to false!!
     }
@@ -193,6 +200,7 @@ void symbol::assign_value(const string &name, const string &type, int lineno, co
     CB.emit(varReg + " = getelementprt [50 x i32], [50 x i32]*, " + llvm_stack_reg + ", i32 0, i32 " +
             to_string(arg1->offset));
     CB.emit("store i32 " + reg + ", i32* " + varReg);
+    //TODO: CHECK IF BOOL THAN ACT DIFFERENT
 }
 
 

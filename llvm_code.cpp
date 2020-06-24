@@ -1,6 +1,7 @@
 #include "llvm_code.h"
 //Global Vars
 int REG_IDX=0;
+int STR_IDX=0;
 
 string crush_code() {
     return CB.genLabel();
@@ -8,6 +9,17 @@ string crush_code() {
 
 string freshVar(){
     return "%reg"+to_string(REG_IDX++);
+}
+
+string freshStr(){
+    return "@.str."+to_string(STR_IDX++);
+}
+
+string emitString(string &s){
+    string label = freshStr();
+    s.pop_back();
+    CB.emitGlobal(label + " = private constant [" + to_string(s.size()) + " x i8] c" + s + "\\0A\\00\"");
+    return label;
 }
 
 void initRegIdx(){
