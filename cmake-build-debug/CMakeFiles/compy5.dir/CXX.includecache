@@ -12,6 +12,24 @@ vector
 string
 -
 
+/cygdrive/c/Users/Dell/Documents/GitHub/Compy5/hw3_aux.cpp
+hw3_aux.h
+/cygdrive/c/Users/Dell/Documents/GitHub/Compy5/hw3_aux.h
+cstring
+-
+
+/cygdrive/c/Users/Dell/Documents/GitHub/Compy5/hw3_aux.h
+llvm_code.h
+/cygdrive/c/Users/Dell/Documents/GitHub/Compy5/llvm_code.h
+iostream
+-
+sstream
+-
+vector
+-
+string
+-
+
 /cygdrive/c/Users/Dell/Documents/GitHub/Compy5/hw3_output.hpp
 vector
 -
