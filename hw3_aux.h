@@ -75,6 +75,8 @@ public:
 
     void assign_value(const string &name, const string &type, int lineno , const string &reg);
 
+    void forceIntoReg(Node* node);
+
     void init_llvm_stack();
 
     void init_var_in_llvmStack(const string &name, const string &type, int lineno);
