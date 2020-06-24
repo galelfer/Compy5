@@ -56,7 +56,7 @@ void symbol::forceIntoReg(Node* node) {
         CB.emit(node->reg +" = trunc i32 " + bstoi(node->value) + "to i8");
     } else if (node->type == "STRING") {
         CB.emit(node->reg +" = " + node->value + "\00");
-    } else CB.emit(node->reg +" = " + node->value);
+    } else CB.emit(node->reg +" = add i32 0, " + node->value);
 }
 
 void symbol::add_var(const string &name, const string &type, bool isFunc, int lineno) {
@@ -112,6 +112,7 @@ void symbol::decl_func(const string &name, const string &type, const string &ret
     string func_type = output::makeFunctionType(ret_val, types);
     add_func(name, func_type, lineno);
     add_scope();
+    CB.emit("define " + ret_val + " @" + name + "(" + type + ") {");
     void initRegIdx();
     input_llvm_stack_reg = freshVar();
     string input_size = to_string(args.size());
@@ -253,6 +254,7 @@ string symbol::funcType(const string &func_name, const string &args_types, int l
             exit(-1);
         }
     }
+
     return exp_in_out[1];
 }
 
