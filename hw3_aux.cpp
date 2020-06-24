@@ -43,8 +43,10 @@ Node *symbol::makeNodeFromID(const string &id, int lineno) {
 }
 
 const arg *symbol::get_var_type(const string &name, const string &type) {
+    cout <<"***********" << name <<" "<< type <<"****************"<<endl;
     for (auto const &table: t_stack) {
         for (auto const &entry : table) {
+            cout << entry.name << " " << entry.type <<endl;
             if ((entry.name == name) && (entry.type == type)) {
                 return &entry;
             }
@@ -184,6 +186,7 @@ void symbol::init_var_in_llvmStack(const string &name, const string &type, int l
 void symbol::assign_value(const string &name, const string &type, int lineno , const string &reg){
 
     const arg* arg1=get_var_type(name, type);
+    cout<< arg1 <<endl;
     string varReg =freshVar();
     CB.emit(varReg + " = getelementprt [50 x i32], [50 x i32]*, " + llvm_stack_reg + ", i32 0, i32 " + to_string(arg1->offset) );
     CB.emit("store i32 " + reg + ", i32* "+ varReg);

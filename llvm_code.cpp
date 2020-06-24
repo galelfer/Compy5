@@ -45,8 +45,8 @@ void div(string reg_a, string reg_b, Node* ret){
     int line2 = CB.emit("br i1 " + t1 + ", label @, label @");
     string CC = crush_code();
     CB.emit("call void @print(i8* getelementptr ([23 x i8], [23 x i8]* @.stzero, i32 0, i32 0) )");
-    CB.emit("%retVal = add i32 0 , -1");
-    CB.emit("call void (i32) @exit(i32 %retVal)");
+    CB.emit("%divByZ = add i32 0 , -1");
+    CB.emit("call void (i32) @exit(i32 %divByZ)");
     CB.bpatch(CB.makelist({line2, FIRST}), CC);
     string OK = CB.genLabel();
     CB.bpatch(CB.makelist({line2, SECOND}), OK);
