@@ -19,6 +19,11 @@ public:
     string type;
     string value;
     string reg;
+    vector<pair<int,BranchLabelIndex>> nextlist;
+    vector<pair<int,BranchLabelIndex>> truelist;
+    vector<pair<int,BranchLabelIndex>> falselist;
+    vector<pair<int,BranchLabelIndex>> breaklist;
+    vector<pair<int,BranchLabelIndex>> continuelist;
     Node() = default;
     Node(const string &name, const string &type, const string &value, const string &reg) : name(name), type(type), value(value), reg(reg) {}
     Node(const string &name, const string &type, const string &reg) : name(name), type(type), value("") , reg(reg) {}
