@@ -44,7 +44,7 @@ void div(string reg_a, string reg_b, Node* ret){
     CB.emit(t1 + " = icmp eq i32 " + reg_b + " , 0");
     int line2 = CB.emit("br i1 " + t1 + ", label @, label @");
     string CC = crush_code();
-    CB.emit("call void @print(i8* getelementptr ([23 x i8], [23 x i8]* @.stzero, i32 0, i32 0) )");
+    CB.emit("call void @print(i8* getelementptr ([23 x i8], [23 x i8]* @.stzero, i32 0, i32 0))");
     CB.emit("%divByZ = add i32 0 , -1");
     CB.emit("call void (i32) @exit(i32 %divByZ)");
     CB.bpatch(CB.makelist({line2, FIRST}), CC);
@@ -54,10 +54,6 @@ void div(string reg_a, string reg_b, Node* ret){
 }
 
 void BINOP_proc(Node* ret, Node* arg1, Node* op, Node* arg2) {
-    string a = (arg1->type == "INT") ? arg1->value : bstoi(arg1->value);
-    string b = (arg2->type == "INT") ? arg2->value : bstoi(arg2->value);
-    CB.emit(arg1->reg + " = i32 " + a );
-    CB.emit(arg2->reg + " = i32 " + b );
     if(op->name == "+") {
         add(arg1->reg, arg2->reg, ret);
     } else if(op->name == "-") {
