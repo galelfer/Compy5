@@ -54,7 +54,6 @@ const arg *symbol::get_var_type(const string &name, const string &type) {
 void symbol::forceIntoReg(Node* node) {
     if(node->type == "BYTE") {
         CB.emit(node->reg +" = trunc i32 " + bstoi(node->value) + "to i8");
-        CB.emit(node->reg +" = trunc i32 " + bstoi(node->value) + "to i8");
     } else if (node->type == "STRING") {
         node->reg = emitString(node->value);
     } else CB.emit(node->reg +" = add i32 0, " + node->value);
