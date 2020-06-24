@@ -131,7 +131,7 @@ void symbol::decl_func(const string &name, const string &type, const string &ret
         string address = freshVar();
         CB.emit(address + " = getelementptr [" + input_size + " x i32], [" + input_size + " x i32]* " +
                 input_llvm_stack_reg + ",i32 0, i32 " + to_string(i));
-        CB.emit("store i32 " + tmp->name + ", i32* " + address); //TODO: change to tmp->reg or tmp->val...?
+        //CB.emit("store i32 " + args[i]->name + ", i32* " + address); //TODO: change to tmp->reg or tmp->val...?
     }
 }
 
@@ -301,4 +301,14 @@ void symbol::init_llvm_stack() {
     CB.emitGlobal("ret void");
     CB.emitGlobal("}");
 
+}
+
+void symbol::init_truelist(Node* node){
+    int true_label = CB.emit("br label @");
+    node->truelist=  CB.makelist({true_label,FIRST});
+}
+
+void symbol::init_falselist(Node *node) {
+    int false_label = CB.emit("br label @");
+    node->falselist=  CB.makelist({false_label,FIRST});
 }
