@@ -58,7 +58,7 @@ Funcs : FuncDecl Funcs  	{}
       | 			    	{}
 ;
 
-FuncDecl :  RetType ID LPAREN  Formals RPAREN {symbols->onlyOneMain(yylineno,$2->name); func_ret_type= $1->type; symbols->decl_func($2->name , $4->type , $1->type , $4->name  ,yylineno);} LBRACE Statements RBRACE END_SCOPE symbols->finishDeclFunc($1->type) {}
+FuncDecl :  RetType ID LPAREN  Formals RPAREN {symbols->onlyOneMain(yylineno,$2->name); func_ret_type= $1->type; symbols->decl_func($2->name , $4->type , $1->type , $4->name  ,yylineno);} LBRACE Statements RBRACE END_SCOPE  {symbols->finishDeclFunc($1->type);}
 ;
 
 RetType : Type  		{$$ = new Node($1->name, $1->type , "");}
@@ -82,8 +82,8 @@ Statements: Statement 					{}
 
 Statement : LBRACE NEW_SCOPE Statements RBRACE END_SCOPE {}
 	      	|	Type ID SC 							  {symbols->init_var_in_llvmStack($2->name , $1->type , yylineno) ; symbols->add_var($2->name, $1->type, false, yylineno);}
-	      	|	Type ID ASSIGN Exp SC 				  {symbols->assign_check_types($1->type, $4->type, yylineno); symbols->add_var($2->name, $1->type, false, yylineno); symbols->assign_value($2->name , $1->type , yylineno , $4->reg); }
-	      	|	ID ASSIGN Exp SC 		              {symbols->assign($1->name, $3->type, yylineno); symbols->assign_value($1->name , $3->type , yylineno , $3->reg); }
+	      	|	Type ID ASSIGN Exp SC 				  {symbols->assign_check_types($1->type, $4->type, yylineno); symbols->add_var($2->name, $1->type, false, yylineno); symbols->boolean_evaluation($4); symbols->assign_value($2->name , $1->type , yylineno , $4->reg); }
+	      	|	ID ASSIGN Exp SC 		              {symbols->assign($1->name, $3->type, yylineno); symbols->boolean_evaluation($3); symbols->assign_value($1->name , $3->type , yylineno , $3->reg); }
 	      	|	Call SC								  {}
 	      	|	RETURN SC							  {symbols->check_types("VOID", func_ret_type , yylineno);}
 	      	|	RETURN Exp SC 						  {symbols->check_types($2->type, func_ret_type , yylineno);}
@@ -111,8 +111,8 @@ Call : ID LPAREN ExplList RPAREN  {$$=new Node("", symbols->funcType($1->name, $
 	 | ID LPAREN RPAREN			 		  	{$$=new Node("", symbols->funcType($1->name, "", yylineno), freshVar());}
 ;
 
-ExplList : Exp 									{$$ = new Node($1->name, $1->type, $1->reg);}
-		 |	Exp COMMA ExplList  		{$$ = new Node($1->name + "," + $3->name, $1->type + "," + $3->type, $1->reg + "," + $3->reg);}
+ExplList : Exp 							{$$ = new Node($1->name, $1->type, $1->reg); symbols->boolean_evaluation($1);}
+		 |	Exp COMMA ExplList  		{$$ = new Node($1->name + "," + $3->name, $1->type + "," + $3->type, $1->reg + "," + $3->reg); symbols->boolean_evaluation($1);}
 ;
 
 Type :  INT   									{$$ = new Node("", "INT", "");}
@@ -128,13 +128,13 @@ Exp : LPAREN Exp RPAREN				{exp_type=$2->type; $$ = new Node($2->name, $2->type,
 	|	NUM 						{$$ = new Node($1->value, "INT", $1->value ,$1->reg); exp_type=$$->type; symbols->forceIntoReg($$);}
 	|	NUM B						{symbols->check_valid_b($1->name,yylineno); $$ = new Node($1->value, "BYTE", $1->value ,$1->reg); exp_type=$$->type; symbols->forceIntoReg($$);}
 	|	STRING 						{$$ = new Node($1->value, "STRING", $1->value ,$1->reg); exp_type=$$->type; symbols->forceIntoReg($$);}
-	|	TRUE						{$$ = new Node("true", "BOOL", ""); exp_type=$$->type; symbols->init_truelist($$);}
-	|	FALSE 						{$$ = new Node("false", "BOOL", ""); exp_type=$$->type; symbols->init_falselist($$);}
-	|	NOT Exp 					{symbols->check_types($2->type, "BOOL", yylineno); $$ = new Node("", "BOOL", ""); exp_type=$$->type;}
-	|	Exp AND Exp 				{symbols->check_types($1->type, "BOOL", yylineno); symbols->check_types($3->type, "BOOL", yylineno); $$ = new Node("", "BOOL", ""); exp_type=$$->type;}
-	|	Exp OR Exp 					{symbols->check_types($1->type, "BOOL", yylineno); symbols->check_types($3->type, "BOOL", yylineno); $$ = new Node("", "BOOL", ""); exp_type=$$->type;}
-	|	Exp PRERELOP Exp 		 	{symbols->check_types($1->type, "INT", yylineno); symbols->check_types($3->type, "INT", yylineno); $$ = new Node("", "BOOL", ""); exp_type=$$->type;}
-	|	Exp POSTRELOP Exp 		 	{symbols->check_types($1->type, "INT", yylineno); symbols->check_types($3->type, "INT", yylineno); $$ = new Node("", "BOOL", ""); exp_type=$$->type;}
+	|	TRUE						{$$ = $1; exp_type=$$->type; symbols->init_truelist($$);}
+	|	FALSE 						{$$ = $1; exp_type=$$->type; symbols->init_falselist($$);}
+	|	NOT Exp 					{symbols->check_types($2->type, "BOOL", yylineno); $$ = new Node("", "BOOL", "" , freshVar()); exp_type=$$->type;}
+	|	Exp AND Exp 				{symbols->check_types($1->type, "BOOL", yylineno); symbols->check_types($3->type, "BOOL", yylineno); $$ = new Node("", "BOOL", "", freshVar()); exp_type=$$->type;}
+	|	Exp OR Exp 					{symbols->check_types($1->type, "BOOL", yylineno); symbols->check_types($3->type, "BOOL", yylineno); $$ = new Node("", "BOOL", "", freshVar()); exp_type=$$->type;}
+	|	Exp PRERELOP Exp 		 	{symbols->check_types($1->type, "INT", yylineno); symbols->check_types($3->type, "INT", yylineno); $$ = new Node("", "BOOL", "", freshVar()); exp_type=$$->type;}
+	|	Exp POSTRELOP Exp 		 	{symbols->check_types($1->type, "INT", yylineno); symbols->check_types($3->type, "INT", yylineno); $$ = new Node("", "BOOL", "", freshVar()); exp_type=$$->type;}
 ;
 
 

@@ -83,6 +83,8 @@ public:
 
     void init_var_in_llvmStack(const string &name, const string &type, int lineno);
 
+    void boolean_evaluation(Node* exp);
+
     void init_truelist(Node* node);
 
     void init_falselist(Node* node);

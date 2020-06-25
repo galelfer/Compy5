@@ -194,12 +194,12 @@ void symbol::init_var_in_llvmStack(const string &name, const string &type, int l
 void symbol::assign_value(const string &name, const string &type, int lineno, const string &reg) {
 
     const arg *arg1 = get_var_type(name, type);
-    cout << arg1 << endl;
+    //cout << arg1 << endl;
     string varReg = freshVar();
     CB.emit(varReg + " = getelementprt [50 x i32], [50 x i32]*, " + llvm_stack_reg + ", i32 0, i32 " +
             to_string(arg1->offset));
     CB.emit("store i32 " + reg + ", i32* " + varReg);
-    //TODO: CHECK IF BOOL THAN ACT DIFFERENT
+    //TODO: CHECK IF BOOL THAN ACT DIFFERENT  ###DONE###
 }
 
 
@@ -308,4 +308,31 @@ void symbol::init_llvm_stack() {
     CB.emitGlobal("ret void");
     CB.emitGlobal("}");
 
+}
+
+void symbol::init_truelist(Node* node){
+    int true_label = CB.emit("br label @");
+    node->truelist=  CB.makelist({true_label,FIRST});
+
+}
+
+void symbol::init_falselist(Node *node) {
+    int false_label = CB.emit("br label @");
+    node->falselist=  CB.makelist({false_label,FIRST});
+}
+
+void symbol::boolean_evaluation(Node* exp){
+    if(exp->type != "BOOL")
+        return;
+
+    string true_label = CB.genLabel();
+    int from_true = CB.emit("br label @");
+    string false_label = CB.genLabel();
+    int from_false = CB.emit("br label @");
+    CB.bpatch(exp->truelist,true_label);
+    CB.bpatch(exp->falselist,false_label);
+    string label3 = CB.genLabel();
+    CB.bpatch(CodeBuffer::makelist({from_true,FIRST}),label3);
+    CB.bpatch(CodeBuffer::makelist({from_false,FIRST}),label3);
+    CB.emit(exp->reg+" = phi i32 [ 1, %"+true_label+" ], [ 0, %"+false_label+" ]");
 }
