@@ -13,6 +13,7 @@ using namespace std;
 
 string freshVar();
 string bstoi(string bs);
+string emitString(string &s);
 void initRegIdx();
 void BINOP_proc(Node* ret, Node* arg1, Node* op, Node* arg2);
 

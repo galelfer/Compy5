@@ -55,7 +55,7 @@ void symbol::forceIntoReg(Node* node) {
     if(node->type == "BYTE") {
         CB.emit(node->reg +" = trunc i32 " + bstoi(node->value) + "to i8");
     } else if (node->type == "STRING") {
-        CB.emit(node->reg +" = " + node->value + "\00");
+        node->reg = emitString(node->value);
     } else CB.emit(node->reg +" = add i32 0, " + node->value);
 }
 
@@ -131,9 +131,15 @@ void symbol::decl_func(const string &name, const string &type, const string &ret
         string address = freshVar();
         CB.emit(address + " = getelementptr [" + input_size + " x i32], [" + input_size + " x i32]* " +
                 input_llvm_stack_reg + ",i32 0, i32 " + to_string(i));
-        //CB.emit("store i32 " + args[i]->name + ", i32* " + address); //TODO: change to tmp->reg or tmp->val...?
+        CB.emit("store i32 " + tmp->name + ", i32* " + address); //TODO: change to tmp->reg or tmp->val...?
     }
 }
+
+void symbol::finishDeclFunc(string &type) {
+    (type == "VOID") ? CB.emit("ret void") : CB.emit("ret i32 0");
+    CB.emit("}");
+}
+
 
 void symbol::PrintScope(table scope) {
     for (int i = 0; i < scope.size(); ++i) {
@@ -178,7 +184,7 @@ void symbol::assign(const string &name, const string &type, int lineno) {
 void symbol::init_var_in_llvmStack(const string &name, const string &type, int lineno) {
     string valueReg = freshVar();
     if (type == "INT" || type == "BYTE") {
-        CB.emit("valueReg = add i32 0 , 0");
+        CB.emit(valueReg + " = add i32 0 , 0");
     } else {
         // TODO: init valueReg to false!!
     }
@@ -188,11 +194,12 @@ void symbol::init_var_in_llvmStack(const string &name, const string &type, int l
 void symbol::assign_value(const string &name, const string &type, int lineno, const string &reg) {
 
     const arg *arg1 = get_var_type(name, type);
-    cout << arg1 << endl;
+    //cout << arg1 << endl;
     string varReg = freshVar();
     CB.emit(varReg + " = getelementprt [50 x i32], [50 x i32]*, " + llvm_stack_reg + ", i32 0, i32 " +
             to_string(arg1->offset));
     CB.emit("store i32 " + reg + ", i32* " + varReg);
+    //TODO: CHECK IF BOOL THAN ACT DIFFERENT  ###DONE###
 }
 
 
@@ -306,9 +313,26 @@ void symbol::init_llvm_stack() {
 void symbol::init_truelist(Node* node){
     int true_label = CB.emit("br label @");
     node->truelist=  CB.makelist({true_label,FIRST});
+
 }
 
 void symbol::init_falselist(Node *node) {
     int false_label = CB.emit("br label @");
     node->falselist=  CB.makelist({false_label,FIRST});
+}
+
+void symbol::boolean_evaluation(Node* exp){
+    if(exp->type != "BOOL")
+        return;
+
+    string true_label = CB.genLabel();
+    int from_true = CB.emit("br label @");
+    string false_label = CB.genLabel();
+    int from_false = CB.emit("br label @");
+    CB.bpatch(exp->truelist,true_label);
+    CB.bpatch(exp->falselist,false_label);
+    string label3 = CB.genLabel();
+    CB.bpatch(CodeBuffer::makelist({from_true,FIRST}),label3);
+    CB.bpatch(CodeBuffer::makelist({from_false,FIRST}),label3);
+    CB.emit(exp->reg+" = phi i32 [ 1, %"+true_label+" ], [ 0, %"+false_label+" ]");
 }

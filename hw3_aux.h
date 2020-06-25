@@ -57,6 +57,8 @@ public:
 
     void decl_func(const string& name, const string& type, const string& ret_val , string& arg1 , int lineno);
 
+    void finishDeclFunc(string &type);
+
     void PrintScope(table scope);
 
     void init_global_table();
@@ -80,6 +82,8 @@ public:
     void init_llvm_stack();
 
     void init_var_in_llvmStack(const string &name, const string &type, int lineno);
+
+    void boolean_evaluation(Node* exp);
 
     void init_truelist(Node* node);
 
