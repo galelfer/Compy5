@@ -17,8 +17,8 @@ bool														{yylval= new Node(yytext, "BOOL", "");return BOOL;}
 and														    return AND;
 or														    return OR;
 not														    return NOT;
-true														{yylval = new Node(yytext, "BOOL", "true", ""); return TRUE;}
-false														{yylval = new Node(yytext, "BOOL", "false", ""); return FALSE;}
+true														{yylval = new Node(yytext, "BOOL", "true", freshVar()); return TRUE;}
+false														{yylval = new Node(yytext, "BOOL", "false", freshVar()); return FALSE;}
 return														return RETURN;
 if														    return IF;
 else 														return ELSE;
