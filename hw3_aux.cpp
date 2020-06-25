@@ -112,8 +112,8 @@ void symbol::decl_func(const string &name, const string &type, const string &ret
     string func_type = output::makeFunctionType(ret_val, types);
     add_func(name, func_type, lineno);
     add_scope();
-    CB.emit("define " + ret_val + " @" + name + "(" + type + ") {");
-    void initRegIdx();
+    CB.emit("define " + ret_val + " @" + name + "(" + to_i32(types) + ") {");
+    initRegIdx();
     input_llvm_stack_reg = freshVar();
     string input_size = to_string(args.size());
     if (args.size() > 0)
@@ -131,7 +131,7 @@ void symbol::decl_func(const string &name, const string &type, const string &ret
         string address = freshVar();
         CB.emit(address + " = getelementptr [" + input_size + " x i32], [" + input_size + " x i32]* " +
                 input_llvm_stack_reg + ",i32 0, i32 " + to_string(i));
-        CB.emit("store i32 " + tmp->name + ", i32* " + address); //TODO: change to tmp->reg or tmp->val...?
+        //CB.emit("store i32 " + tmp->name + ", i32* " + address); //TODO: change to tmp->reg or tmp->val...?
     }
 }
 
@@ -183,11 +183,7 @@ void symbol::assign(const string &name, const string &type, int lineno) {
 
 void symbol::init_var_in_llvmStack(const string &name, const string &type, int lineno) {
     string valueReg = freshVar();
-    if (type == "INT" || type == "BYTE") {
-        CB.emit(valueReg + " = add i32 0 , 0");
-    } else {
-        // TODO: init valueReg to false!!
-    }
+    CB.emit(valueReg + " = add i32 0 , 0");
     assign_value(name, type, lineno, valueReg);
 }
 
@@ -335,4 +331,46 @@ void symbol::boolean_evaluation(Node* exp){
     CB.bpatch(CodeBuffer::makelist({from_true,FIRST}),label3);
     CB.bpatch(CodeBuffer::makelist({from_false,FIRST}),label3);
     CB.emit(exp->reg+" = phi i32 [ 1, %"+true_label+" ], [ 0, %"+false_label+" ]");
+}
+
+void symbol::swap_truelist_falselist(Node* resExp , Node* exp){
+
+    resExp->truelist=exp->falselist;
+    resExp->falselist=exp->truelist;
+
+}
+
+
+string symbol::switch_relation(string rel){
+
+    if(rel=="==")     return "eq";
+    if (rel=="!=")    return "ne";
+    if (rel=="<")     return "slt";
+    if (rel=="<=")    return "sle";
+    if (rel==">")     return "sgt";
+    else              return "sge"; // for the relation ">="
+
+}
+
+string symbol::to_i32(vector<string> types){
+    string res="";
+    for(int i=0 ; i<types.size() ; i++){
+        if(i==(types.size()-1))
+            res = res + "i32";
+        else
+            res = res + "i32" + ",";
+    }
+    return res;
+}
+
+void symbol::and_backpatch( Node* res , Node* first , Node* second , string marker_label){
+    CB.bpatch(first->truelist,marker_label);
+    res->truelist=second->truelist;
+    res->falselist=CB.merge(first->falselist, second->falselist);
+}
+
+void symbol::or_backpatch(Node *res, Node *first, Node *second, string marker_label) {
+    CB.bpatch(first->falselist,marker_label);
+    res->truelist=CB.merge(first->truelist, second->truelist);
+    res->falselist=second->falselist;
 }

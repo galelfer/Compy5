@@ -88,6 +88,16 @@ public:
     void init_truelist(Node* node);
 
     void init_falselist(Node* node);
+
+    void swap_truelist_falselist(Node* resExp , Node* exp);
+
+    string switch_relation(string rel);
+
+    string to_i32(vector<string> types);
+
+    void and_backpatch( Node* res , Node* first , Node* second , string marker_label);
+
+    void or_backpatch( Node* res , Node* first , Node* second , string marker_label);
 };
 
 
