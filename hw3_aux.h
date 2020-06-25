@@ -100,6 +100,18 @@ public:
     void or_backpatch( Node* res , Node* first , Node* second , string marker_label);
 
     void relop_evaluation(Node* res , string op , string arg1 , string arg2);
+
+    void bool_evaluation_for_call(Node* node);
+
+    string ret_value(string ret);
+
+    void if_backpatching(Node* res , Node* exp , Node* statement , string marker_label);
+
+    void if_else_backpatch(Node* res , Node* exp  , Node* statement1 , Node* N , Node* statement2 , Node* M2 ,string M1_label);
+
+    void exit_loop(Node* res);
+
+    void skip_loop(Node* res);
 };
 
 

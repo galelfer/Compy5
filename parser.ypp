@@ -77,8 +77,9 @@ FormalsList : FormalDecl    			      {if(symbols->get_var($1->name,false) != nul
 FormalDecl : Type ID    		{$$ = new Node($2->name, $1->type , $2->reg);}
 ;
 
-Statements: Statement 					{}
-          | Statements Statement 		{}
+Statements: Statement 					{$$=$1;}
+          | Statements Statement 		{ $$->continuelist=CodeBuffer::merge($2->continuelist,$1->continuelist);
+                                          $$->breaklist=CodeBuffer::merge($2->breaklist,$1->breaklist);}
 ;
 
 Statement : LBRACE NEW_SCOPE Statements RBRACE END_SCOPE {}
@@ -88,13 +89,18 @@ Statement : LBRACE NEW_SCOPE Statements RBRACE END_SCOPE {}
 	      	|	Call SC								  {}
 	      	|	RETURN SC							  {symbols->check_types("VOID", func_ret_type , yylineno);}
 	      	|	RETURN Exp SC 						  {symbols->check_types($2->type, func_ret_type , yylineno);}
-	      	|	IF NEW_SCOPE LPAREN Exp RPAREN CHECK_TYPE Statement END_SCOPE ELSE NEW_SCOPE Statement END_SCOPE
-	      	|	IF NEW_SCOPE LPAREN Exp RPAREN CHECK_TYPE Statement  END_SCOPE
+	      	|	IF NEW_SCOPE LPAREN Exp CHECK_TYPE M1 RPAREN Statement END_SCOPE ELSE N NEW_SCOPE M2 Statement END_SCOPE {$$= new Node("" , "BOOL" , ""); symbols->if_else_backpatch($$ , $4 , $8 , $11 , $14 , $13 , M1_label);}
+	      	|	IF NEW_SCOPE LPAREN Exp CHECK_TYPE M1 RPAREN Statement  END_SCOPE {$$= new Node("" , "BOOL" , ""); symbols->if_backpatching($$ , $4 , $8 , M1_label);}
 	      	|	WHILE LOOPSCNT NEW_SCOPE LPAREN Exp RPAREN CHECK_TYPE Statement END_SCOPE ELSE NEW_SCOPE Statement  END_SCOPE {loopsCnt--;}
 	      	|	WHILE LOOPSCNT NEW_SCOPE LPAREN Exp RPAREN CHECK_TYPE Statement END_SCOPE {loopsCnt--;}
-	      	|	BREAK SC	 	   {symbols->insideLoop(loopsCnt , "break" , yylineno);}
-	      	|	CONTINUE SC	       {symbols->insideLoop(loopsCnt , "continue" , yylineno);}
+	      	|	BREAK SC	 	   {symbols->insideLoop(loopsCnt , "break" , yylineno); symbols->exit_loop($$);}
+	      	|	CONTINUE SC	       {symbols->insideLoop(loopsCnt , "continue" , yylineno); symbols->skip_loop($$);}
 ;
+
+N : {$$=new Node("","","");  int line1=CB.emit("br label @");  $$->nextlist=CodeBuffer::makelist({line1,FIRST});}
+;
+
+M2 : {$$=new Node("" , "" , ""); int line = CB.emit("br label @");  $$->name = CB.genLabel();  CB.bpatch(CodeBuffer::makelist({line,FIRST}),$$->name);}
 
 CHECK_TYPE:     {symbols->check_types("BOOL",exp_type, yylineno);}
 ;
@@ -105,7 +111,7 @@ LOOPSCNT :      {loopsCnt++;}
 NEW_SCOPE :     {symbols->add_scope();}
 ;
 
-END_SCOPE :      {initRegIdx(); symbols->remove_scope();}
+END_SCOPE :      {symbols->remove_scope();}
 ;
 
 Call : ID LPAREN ExplList RPAREN  {$$=new Node("", symbols->funcType($1->name, $3->type , yylineno), freshVar());}
@@ -125,7 +131,7 @@ Exp : LPAREN Exp RPAREN				{exp_type=$2->type; $$ = new Node($2->name, $2->type,
 	|	Exp PREBINOP Exp			{symbols->check_types($1->type, "INT", yylineno); symbols->check_types($3->type, "INT", yylineno); $$ = new Node("", symbols->larger($1->type, $3->type), freshVar()); exp_type=$$->type; BINOP_proc($$, $1, $2, $3);}
 	|	Exp POSTBINOP Exp			{symbols->check_types($1->type, "INT", yylineno); symbols->check_types($3->type, "INT", yylineno); $$ = new Node("", symbols->larger($1->type, $3->type), freshVar());exp_type=$$->type; BINOP_proc($$, $1, $2, $3);}
 	|	ID 							{$$ = symbols->makeNodeFromID($1->name,yylineno); exp_type=$$->type;}
-	|	Call						{$$ = new Node("", $1->type, $1->reg); exp_type=$$->type;}
+	|	Call						{$$ = new Node("", $1->type, $1->reg); exp_type=$$->type; symbols->bool_evaluation_for_call($$); }
 	|	NUM 						{$$ = new Node($1->value, "INT", $1->value ,$1->reg); exp_type=$$->type; symbols->forceIntoReg($$);}
 	|	NUM B						{symbols->check_valid_b($1->name,yylineno); $$ = new Node($1->value, "BYTE", $1->value ,$1->reg); exp_type=$$->type; symbols->forceIntoReg($$);}
 	|	STRING 						{$$ = new Node($1->value, "STRING", $1->value ,$1->reg); exp_type=$$->type; symbols->forceIntoReg($$);}
@@ -139,7 +145,7 @@ Exp : LPAREN Exp RPAREN				{exp_type=$2->type; $$ = new Node($2->name, $2->type,
 ;
 
 M1 : {int to_marker_label = CB.emit("br label @"); M1_label = CB.genLabel(); CB.bpatch(CB.makelist({to_marker_label,FIRST}) , M1_label);}
-
+;
 
 %%
 
