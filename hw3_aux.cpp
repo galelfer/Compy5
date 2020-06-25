@@ -341,7 +341,7 @@ void symbol::swap_truelist_falselist(Node* resExp , Node* exp){
 }
 
 
-string symbol::switch_relation(string rel){
+string symbol::switch_relop(string rel){
 
     if(rel=="==")     return "eq";
     if (rel=="!=")    return "ne";
@@ -373,4 +373,12 @@ void symbol::or_backpatch(Node *res, Node *first, Node *second, string marker_la
     CB.bpatch(first->falselist,marker_label);
     res->truelist=CB.merge(first->truelist, second->truelist);
     res->falselist=second->falselist;
+}
+
+void symbol::relop_evaluation(Node* res , string op , string arg1 , string arg2){
+    string reg=freshVar();
+    CB.emit(reg + " = icmp " + switch_relop(op) + " i32 " + arg1 + ", " + arg2);
+    int line1 = CB.emit("br i1 " + reg + ", label @, label @");
+    res->truelist= CB.makelist({line1,FIRST});
+    res->falselist= CB.makelist({line1,SECOND});
 }

@@ -134,8 +134,8 @@ Exp : LPAREN Exp RPAREN				{exp_type=$2->type; $$ = new Node($2->name, $2->type,
 	|	NOT Exp 					{symbols->check_types($2->type, "BOOL", yylineno); $$ = new Node("", "BOOL", "" , freshVar()); exp_type=$$->type; symbols->swap_truelist_falselist($$,$2);}
 	|	Exp AND M1 Exp 				{symbols->check_types($1->type, "BOOL", yylineno); symbols->check_types($4->type, "BOOL", yylineno); $$ = new Node("", "BOOL", "", freshVar()); exp_type=$$->type; symbols->and_backpatch($$,$1,$4,M1_label);}
 	|	Exp OR  M1 Exp 				{symbols->check_types($1->type, "BOOL", yylineno); symbols->check_types($4->type, "BOOL", yylineno); $$ = new Node("", "BOOL", "", freshVar()); exp_type=$$->type; symbols->or_backpatch($$,$1,$4,M1_label);}
-	|	Exp PRERELOP Exp 		 	{symbols->check_types($1->type, "INT", yylineno); symbols->check_types($3->type, "INT", yylineno); $$ = new Node("", "BOOL", "", freshVar()); exp_type=$$->type;}
-	|	Exp POSTRELOP Exp 		 	{symbols->check_types($1->type, "INT", yylineno); symbols->check_types($3->type, "INT", yylineno); $$ = new Node("", "BOOL", "", freshVar()); exp_type=$$->type;}
+	|	Exp PRERELOP Exp 		 	{symbols->check_types($1->type, "INT", yylineno); symbols->check_types($3->type, "INT", yylineno); $$ = new Node("", "BOOL", "", freshVar()); exp_type=$$->type; symbols->relop_evaluation($$ , $2->name , $1->reg , $3->reg);}
+	|	Exp POSTRELOP Exp 		 	{symbols->check_types($1->type, "INT", yylineno); symbols->check_types($3->type, "INT", yylineno); $$ = new Node("", "BOOL", "", freshVar()); exp_type=$$->type; symbols->relop_evaluation($$ , $2->name , $1->reg , $3->reg);}
 ;
 
 M1 : {int to_marker_label = CB.emit("br label @"); M1_label = CB.genLabel(); CB.bpatch(CB.makelist({to_marker_label,FIRST}) , M1_label);}
