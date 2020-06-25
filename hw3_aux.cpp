@@ -428,3 +428,26 @@ void symbol::skip_loop(Node* res) {
     int line1=CB.emit("br label @");
     res->continuelist= CodeBuffer::makelist({line1,FIRST});
 }
+
+void symbol::while_backpatch(Node* res , Node* exp , Node* statement , Node* marker1 , Node* marker2){
+    CB.emit("br label %"+ marker1->name);
+    string next_label=CB.genLabel();
+    CB.bpatch(statement->nextlist,marker1->name);
+    CB.bpatch(exp->truelist,marker2->name);
+    CB.bpatch(statement->continuelist,marker1->name);
+    CB.bpatch(exp->falselist,next_label);
+    CB.bpatch(statement->breaklist,next_label);
+
+}
+
+void symbol::while_else_backpatch(Node* res , Node* exp , Node* statement1 , Node* statement2 , Node* marker1 , Node* marker2 , Node* marker3 , Node* skip_marker){
+    string next_label=CB.genLabel();
+    CB.bpatch(statement1->nextlist,marker1->name);
+    CB.bpatch(statement2->nextlist,next_label);
+    CB.bpatch(exp->truelist,marker2->name);
+    CB.bpatch(statement1->continuelist,marker1->name);
+    CB.bpatch(exp->falselist,marker3->name);
+    CB.bpatch(statement1->breaklist,next_label);
+    CB.bpatch(skip_marker->nextlist,marker1->name);
+
+}

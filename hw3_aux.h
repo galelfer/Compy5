@@ -112,6 +112,10 @@ public:
     void exit_loop(Node* res);
 
     void skip_loop(Node* res);
+
+    void while_backpatch(Node* res , Node* exp , Node* statement , Node* marker1 , Node* marker2);
+
+    void while_else_backpatch(Node* res , Node* exp , Node* statement1 , Node* statement2 , Node* marker1 , Node* marker2 , Node* marker3 , Node* skip_marker);
 };
 
 
