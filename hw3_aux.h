@@ -91,13 +91,15 @@ public:
 
     void swap_truelist_falselist(Node* resExp , Node* exp);
 
-    string switch_relation(string rel);
+    string switch_relop(string rel);
 
     string to_i32(vector<string> types);
 
     void and_backpatch( Node* res , Node* first , Node* second , string marker_label);
 
     void or_backpatch( Node* res , Node* first , Node* second , string marker_label);
+
+    void relop_evaluation(Node* res , string op , string arg1 , string arg2);
 };
 
 
