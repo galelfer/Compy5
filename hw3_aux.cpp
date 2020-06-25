@@ -112,7 +112,7 @@ void symbol::decl_func(const string &name, const string &type, const string &ret
     string func_type = output::makeFunctionType(ret_val, types);
     add_func(name, func_type, lineno);
     add_scope();
-    CB.emit("define " + ret_val + " @" + name + "(" + to_i32(types) + ") {");
+    CB.emit("define " + ret_value(ret_val) + " @" + name + "(" + to_i32(types) + ") {");
     initRegIdx();
     input_llvm_stack_reg = freshVar();
     string input_size = to_string(args.size());
@@ -381,4 +381,50 @@ void symbol::relop_evaluation(Node* res , string op , string arg1 , string arg2)
     int line1 = CB.emit("br i1 " + reg + ", label @, label @");
     res->truelist= CB.makelist({line1,FIRST});
     res->falselist= CB.makelist({line1,SECOND});
+}
+
+void symbol::bool_evaluation_for_call(Node* node){
+    if(node->type=="BOOL") {
+        int line1 = CB.emit("br i1 " + node->reg + ", label @, label @");
+        node->truelist = CB.makelist({line1, FIRST});
+        node->falselist = CB.makelist({line1, SECOND});
+    }
+}
+
+string symbol::ret_value(string ret){
+    if(ret=="VOID") return "void";
+    return "i32";
+}
+
+void symbol::if_backpatching(Node* res , Node* exp , Node* statement , string marker_label){
+    string next_label=CB.genLabel();
+    CB.bpatch(exp->truelist,marker_label);
+    CB.bpatch(exp->falselist,next_label);
+    CB.bpatch(statement->nextlist,next_label);
+    res->nextlist=CB.merge(exp->falselist,statement->nextlist);
+    res->breaklist=statement->breaklist;
+    res->continuelist=statement->continuelist;
+}
+
+void symbol::if_else_backpatch(Node* res , Node* exp , Node* statement1 , Node* N , Node* statement2 , Node* M2 ,string M1_label){
+    string next_label=CB.genLabel();
+    CB.bpatch(exp->truelist,M1_label);
+    CB.bpatch(exp->falselist,M2->name);
+    CB.bpatch(statement1->nextlist,next_label);
+    CB.bpatch(N->nextlist,next_label);
+    CB.bpatch(statement2->nextlist,next_label);
+
+    res->nextlist     = CB.merge(CB.merge(statement1->nextlist,N->nextlist),statement2->nextlist);
+    res->breaklist    = CB.merge(statement1->breaklist,statement2->breaklist);
+    res->continuelist = CB.merge(statement1->continuelist,statement2->continuelist);
+}
+
+void symbol::exit_loop(Node* res){
+    int line1=CB.emit("br label @");
+    res->breaklist= CodeBuffer::makelist({line1,FIRST});
+}
+
+void symbol::skip_loop(Node* res) {
+    int line1=CB.emit("br label @");
+    res->continuelist= CodeBuffer::makelist({line1,FIRST});
 }
