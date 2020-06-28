@@ -121,7 +121,7 @@ bool symbol::remove_scope() {
     return true;
 }
 
-static void tokenize(string const &str, const char *delim, vector<string> &out) {
+static void tokenize(string const str, const char *delim, vector<string> &out) {
     char *token = strtok(const_cast<char *>(str.c_str()), delim);
     while (token != nullptr) {
         out.emplace_back(string(token));
@@ -131,8 +131,11 @@ static void tokenize(string const &str, const char *delim, vector<string> &out) 
 
 void symbol::decl_func(const string &name, const string &type, const string &ret_val, string &arg1, int lineno) {
     vector<string> in_out, types, args; //accept type like: int,float,string->void
-    tokenize(arg1, ",", args);
-    tokenize(type, ",", types);
+    string type1=type;
+    string arg3=arg1;
+
+    tokenize(arg3, ",", args);
+    tokenize(type1, ",", types);
     if (args.size() != types.size()) {
         output::errorPrototypeMismatch(lineno, name, types);
         exit(-1);
@@ -146,13 +149,16 @@ void symbol::decl_func(const string &name, const string &type, const string &ret
     string args_list = "";
     string arg2;
     for(int i=0 ; i<types.size() ; i++){
+
         arg2 = freshArg();
         new_args.push_back(arg2);
         if(i==(types.size()-1))
             args_list += "i32 " + arg2 ;
         else
-            args_list += "i32" + arg2 + ",";
+            args_list += "i32 " + arg2 + ", ";
     }
+
+
 
     CB.emit("define " + ret_value(ret_val) + " @" + name + "(" + args_list + ") {");
     initRegIdx();
@@ -235,10 +241,19 @@ string symbol::assign_value(const string &name, const string &type, int lineno, 
 
     const arg *arg1 = get_var_type(name, type);
     string varReg = freshVar();
-    CB.emit(varReg + " = getelementptr [50 x i32], [50 x i32]* " + llvm_stack_reg + ", i32 0, i32 " +
-            to_string(arg1->offset));
-    CB.emit("store i32 " + reg + ", i32* " + varReg);
-    return varReg;
+    if(arg1->offset < 0 ){
+        CB.emit(varReg + " = getelementptr [" + to_string(input_llvm_stack_reg_size) + " x i32], [" + to_string(input_llvm_stack_reg_size) + " x i32]* " + input_llvm_stack_reg + ", i32 0, i32 " +
+                to_string((-1*arg1->offset)-1));
+        CB.emit("store i32 " + reg + ", i32* " + varReg);
+        return varReg;
+    }
+    else{
+        CB.emit(varReg + " = getelementptr [50 x i32], [50 x i32]* " + llvm_stack_reg + ", i32 0, i32 " +
+                to_string(arg1->offset));
+        CB.emit("store i32 " + reg + ", i32* " + varReg);
+        return varReg;
+    }
+
 }
 
 
@@ -392,8 +407,13 @@ void symbol::boolean_evaluation(Node* exp){
 
 void symbol::swap_truelist_falselist(Node* resExp , Node* exp){
 
-    resExp->truelist  = exp->falselist;
-    resExp->falselist = exp->truelist;
+
+//    resExp->truelist  = exp->falselist;
+//    resExp->falselist = exp->truelist;
+
+    vector<pair<int,BranchLabelIndex>> true_list =  exp->truelist;
+    resExp->truelist=exp->falselist;
+    resExp->falselist=true_list;
 
 }
 
@@ -448,6 +468,8 @@ void symbol::if_backpatching(Node* res , Node* exp , Node* statement , string ma
     int line1 = CB.emit("br label @");
     string next_label = CB.genLabel();
     CB.bpatch(CB.makelist({line1,FIRST}), next_label);
+
+    //cout<<exp->truelist.size()<<"   label : "<< marker_label <<"$$$$$$$$$$$$$$$$$$$"<<endl  ;
 
     CB.bpatch(exp->truelist,marker_label);
     CB.bpatch(exp->falselist,next_label);
@@ -509,16 +531,12 @@ void symbol::while_else_backpatch(Node* res , Node* exp , Node* statement1 , Nod
     CB.bpatch(exp->truelist,marker2->name);
     CB.bpatch(statement1->continuelist,marker1->name);
     CB.bpatch(exp->falselist,marker3->name);
-    //cout<< statement1->breaklist.size()<<"%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%";
     CB.bpatch(statement1->breaklist,next_label);
     CB.bpatch(skip_marker->nextlist,marker1->name);
 
 }
 
 void symbol::function_call(const string &name ,Node* explist, string resReg){
-
-
-    //cout<<explist->type<<"$$$$$$$$$$$$$$$"<<endl;
 
     vector<string>  args , in_out , types;
     string explist_regs = explist->reg;
