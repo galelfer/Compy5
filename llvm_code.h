@@ -12,6 +12,7 @@ using namespace std;
 //Funcs decl
 
 string freshVar();
+string freshArg();
 string bstoi(string bs);
 string emitString(string &s);
 void initRegIdx();
