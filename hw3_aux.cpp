@@ -13,7 +13,7 @@ static string replace(string str, string substr1, string substr2) {
     return str;
 }
 
-const arg *symbol::get_var(const string &unique_name, bool isFunc) {
+ const arg *symbol::get_var(const string &unique_name, bool isFunc) {
     for (auto const &table: t_stack) {
         for (auto const &entry : table) {
             if (entry.name == unique_name) {
@@ -26,17 +26,48 @@ const arg *symbol::get_var(const string &unique_name, bool isFunc) {
     return nullptr;
 }
 
-Node *symbol::makeNodeFromID(const string &id, int lineno) {
-    const arg *var = get_var(id, false);
+Node *symbol::makeNodeFromID(Node* node, int lineno) {
+    const arg *var = get_var(node->name, false);
+    string args_stack_size = to_string(input_llvm_stack_reg_size);
     if (var != nullptr) {
         string ptr = freshVar();
         string reg = freshVar();
-        CB.emit(ptr + " = getelementptr [50 x i32], [50 x i32]*, " +  llvm_stack_reg + ", i32 0, i32 " + to_string(var->offset));
-        CB.emit(reg +" = load i32, i32* " + ptr);
-        return new Node(var->name, var->type, reg);
+        if(var->offset < 0){
+            int arg_offset = (-1 * (var->offset))-1;
+            CB.emit(ptr + " = getelementptr [" + args_stack_size +" x i32], [" + args_stack_size + " x i32]* " +  input_llvm_stack_reg + ", i32 0, i32 " + to_string(arg_offset));
+            if(var->type=="BOOL"){
+                CB.emit(reg +" = load i32, i32* " + ptr);
+                string tmp = reg;
+                reg = freshVar();
+                CB.emit(reg +" = icmp eq i32 " + tmp + ", 1 ");
+            }else{
+                CB.emit(reg +" = load i32, i32* " + ptr);
+            }
+
+        }else{
+            CB.emit(ptr + " = getelementptr [50 x i32], [50 x i32]* " +  llvm_stack_reg + ", i32 0, i32 " + to_string(var->offset));
+
+
+            if(var->type=="BOOL"){
+                CB.emit(reg +" = load i32, i32* " + ptr);
+                string tmp = reg;
+                reg = freshVar();
+                CB.emit(reg +" = icmp eq i32 " + tmp + ", 1 ");
+            }else{
+                CB.emit(reg +" = load i32, i32* " + ptr);
+            }
+        }
+
+        Node* res = new Node(var->name, var->type, reg);
+        res->truelist  = node->truelist;
+        res->falselist = node->falselist;
+        res->nextlist  = node->nextlist;
+        res->breaklist = node->breaklist;
+        res->continuelist = node->continuelist;
+        return res;
     }
 
-    output::errorUndef(lineno, id);
+    output::errorUndef(lineno, node->name);
     exit(-1);
 }
 
@@ -52,9 +83,7 @@ const arg *symbol::get_var_type(const string &name, const string &type) {
 }
 
 void symbol::forceIntoReg(Node* node) {
-    if(node->type == "BYTE") {
-        CB.emit(node->reg +" = trunc i32 " + bstoi(node->value) + "to i8");
-    } else if (node->type == "STRING") {
+    if (node->type == "STRING") {
         node->reg = emitString(node->value);
     } else CB.emit(node->reg +" = add i32 0, " + node->value);
 }
@@ -67,16 +96,15 @@ void symbol::add_var(const string &name, const string &type, bool isFunc, int li
     ll offset;
     if (isFunc) {
         offset = 0;
+
     } else {
         offset = o_stack.back();
         o_stack.back() = offset + 1;
     }
-
     t_stack.back().emplace_back(arg(name, type, offset));
-
 }
 
-void symbol::add_func(const string &name, const string &type, int lineno) {
+void symbol::add_func(const string &name, const string &type, int lineno ) {
     add_var(name, type, true, lineno);
 }
 
@@ -112,15 +140,28 @@ void symbol::decl_func(const string &name, const string &type, const string &ret
     string func_type = output::makeFunctionType(ret_val, types);
     add_func(name, func_type, lineno);
     add_scope();
-    CB.emit("define " + ret_value(ret_val) + " @" + name + "(" + to_i32(types) + ") {");
-    initRegIdx();
-    input_llvm_stack_reg = freshVar();
     string input_size = to_string(args.size());
-    if (args.size() > 0)
-        CB.emit(input_llvm_stack_reg + " = alloca [" + input_size + " x i32]");
-    llvm_stack_reg = freshVar();
-    CB.emit(llvm_stack_reg + " = alloca [50 x i32]");
 
+    vector<string> new_args;
+    string args_list = "";
+    string arg2;
+    for(int i=0 ; i<types.size() ; i++){
+        arg2 = freshArg();
+        new_args.push_back(arg2);
+        if(i==(types.size()-1))
+            args_list += "i32 " + arg2 ;
+        else
+            args_list += "i32" + arg2 + ",";
+    }
+
+    CB.emit("define " + ret_value(ret_val) + " @" + name + "(" + args_list + ") {");
+    initRegIdx();
+    llvm_stack_reg       = freshVar();
+    input_llvm_stack_reg = freshVar();
+    input_llvm_stack_reg_size=args.size();
+    CB.emit(llvm_stack_reg + " = alloca [50 x i32]");
+    if(args.size() > 0)
+        CB.emit(input_llvm_stack_reg + " = alloca [" + to_string(args.size()) + " x i32]");
     for (int i = 0; i < (int) args.size(); i++) {
         const arg *tmp = get_var_type(args[i], types[i]);
         if (tmp != nullptr) {
@@ -130,10 +171,13 @@ void symbol::decl_func(const string &name, const string &type, const string &ret
         t_stack.back().emplace_back(arg(args[i], types[i], -i - 1));
         string address = freshVar();
         CB.emit(address + " = getelementptr [" + input_size + " x i32], [" + input_size + " x i32]* " +
-                input_llvm_stack_reg + ",i32 0, i32 " + to_string(i));
-        //CB.emit("store i32 " + tmp->name + ", i32* " + address); //TODO: change to tmp->reg or tmp->val...?
+                        input_llvm_stack_reg + ",i32 0, i32 " + to_string(i));
+        CB.emit("store i32 " + new_args[i] + ", i32* " + address);
+
     }
 }
+
+
 
 void symbol::finishDeclFunc(string &type) {
     (type == "VOID") ? CB.emit("ret void") : CB.emit("ret i32 0");
@@ -181,21 +225,20 @@ void symbol::assign(const string &name, const string &type, int lineno) {
 
 }
 
-void symbol::init_var_in_llvmStack(const string &name, const string &type, int lineno) {
+string symbol::init_var_in_llvmStack(const string &name, const string &type, int lineno) {
     string valueReg = freshVar();
     CB.emit(valueReg + " = add i32 0 , 0");
-    assign_value(name, type, lineno, valueReg);
+    return assign_value(name, type, lineno, valueReg);
 }
 
-void symbol::assign_value(const string &name, const string &type, int lineno, const string &reg) {
+string symbol::assign_value(const string &name, const string &type, int lineno, const string &reg) {
 
     const arg *arg1 = get_var_type(name, type);
-    //cout << arg1 << endl;
     string varReg = freshVar();
-    CB.emit(varReg + " = getelementprt [50 x i32], [50 x i32]*, " + llvm_stack_reg + ", i32 0, i32 " +
+    CB.emit(varReg + " = getelementptr [50 x i32], [50 x i32]* " + llvm_stack_reg + ", i32 0, i32 " +
             to_string(arg1->offset));
     CB.emit("store i32 " + reg + ", i32* " + varReg);
-    //TODO: CHECK IF BOOL THAN ACT DIFFERENT  ###DONE###
+    return varReg;
 }
 
 
@@ -225,22 +268,25 @@ string symbol::larger(const string &type1, const string &type2) {
 }
 
 string symbol::funcType(const string &func_name, const string &args_types, int lineno) {
-    const arg *f = get_var(func_name, true);
+     const arg *f = get_var(func_name, true);
     if (f == nullptr) {
         output::errorUndefFunc(lineno, func_name);
         exit(-1);
     }
-    vector<string> expected_args, received_args, exp_in_out, empty_in;
-    string exp_types_as_string = replace(f->type, "(", ""), rec_args_types_as_string = args_types;
-    exp_types_as_string = replace(exp_types_as_string, ")", "");
 
+    string f_type = f->type;
+    vector<string> expected_args, received_args, exp_in_out, empty_in;
+    string exp_types_as_string = replace(f_type, "(", ""), rec_args_types_as_string = args_types;
+    exp_types_as_string = replace(exp_types_as_string, ")", "");
     tokenize(exp_types_as_string, "->", exp_in_out);
+
     if (exp_in_out.size() == 1) {
         if (args_types == "") {
             return exp_in_out[0];
         } else {
-            output::errorPrototypeMismatch(lineno, func_name, empty_in);
-            exit(-1);
+//            output::errorPrototypeMismatch(lineno, func_name, empty_in);
+//            exit(-1);
+              return "VOID" ;
         }
     }
     tokenize(exp_in_out[0], ",", expected_args);
@@ -291,7 +337,9 @@ void symbol::init_llvm_stack() {
     CB.emitGlobal("@.stzero = constant [23 x i8] c\"Error division by zero\\00\"");
     CB.emitGlobal("@.int_specifier = constant [4 x i8] c\"%d\\0A\\00\"");
     CB.emitGlobal("@.str_specifier = constant [4 x i8] c\"%s\\0A\\00\"");
-//print functions decl
+//print  stacks decl
+
+
     CB.emitGlobal("define void @print(i8*) {");
     CB.emitGlobal(
             "call i32 (i8*, ...) @printf(i8* getelementptr ([4 x i8], [4 x i8]* @.str_specifier, i32 0, i32 0), i8* %0)");
@@ -303,25 +351,29 @@ void symbol::init_llvm_stack() {
             "call i32 (i8*, ...) @printf(i8* getelementptr ([4 x i8], [4 x i8]* @.int_specifier, i32 0, i32 0), i32 %0)");
     CB.emitGlobal("ret void");
     CB.emitGlobal("}");
-
 }
 
+
+
 void symbol::init_truelist(Node* node){
-    int true_label = CB.emit("br label @");
+    int true_label = CB.emit("br label @   ; for true");
     node->truelist=  CB.makelist({true_label,FIRST});
 
 }
 
 void symbol::init_falselist(Node *node) {
-    int false_label = CB.emit("br label @");
+    int false_label = CB.emit("br label @  ; for false");
     node->falselist=  CB.makelist({false_label,FIRST});
 }
 
 void symbol::boolean_evaluation(Node* exp){
     if(exp->type != "BOOL")
         return;
-
+    //these 3 lines are not redundant , they resolve a syntax error!!
+    int line1 = CB.emit("br label @");
     string true_label = CB.genLabel();
+    CB.bpatch(CB.makelist({line1,FIRST}), true_label);
+
     int from_true = CB.emit("br label @");
     string false_label = CB.genLabel();
     int from_false = CB.emit("br label @");
@@ -330,6 +382,7 @@ void symbol::boolean_evaluation(Node* exp){
     string label3 = CB.genLabel();
     CB.bpatch(CodeBuffer::makelist({from_true,FIRST}),label3);
     CB.bpatch(CodeBuffer::makelist({from_false,FIRST}),label3);
+    exp->reg=freshVar();
     CB.emit(exp->reg+" = phi i32 [ 1, %"+true_label+" ], [ 0, %"+false_label+" ]");
 }
 
@@ -348,20 +401,10 @@ string symbol::switch_relop(string rel){
     if (rel=="<")     return "slt";
     if (rel=="<=")    return "sle";
     if (rel==">")     return "sgt";
-    else              return "sge"; // for the relation ">="
+    else              return "sge"; // for the relop ">="
 
 }
 
-string symbol::to_i32(vector<string> types){
-    string res="";
-    for(int i=0 ; i<types.size() ; i++){
-        if(i==(types.size()-1))
-            res = res + "i32";
-        else
-            res = res + "i32" + ",";
-    }
-    return res;
-}
 
 void symbol::and_backpatch( Node* res , Node* first , Node* second , string marker_label){
     CB.bpatch(first->truelist,marker_label);
@@ -397,17 +440,26 @@ string symbol::ret_value(string ret){
 }
 
 void symbol::if_backpatching(Node* res , Node* exp , Node* statement , string marker_label){
-    string next_label=CB.genLabel();
+
+    int line1 = CB.emit("br label @");
+    string next_label = CB.genLabel();
+    CB.bpatch(CB.makelist({line1,FIRST}), next_label);
+
     CB.bpatch(exp->truelist,marker_label);
     CB.bpatch(exp->falselist,next_label);
     CB.bpatch(statement->nextlist,next_label);
-    res->nextlist=CB.merge(exp->falselist,statement->nextlist);
-    res->breaklist=statement->breaklist;
-    res->continuelist=statement->continuelist;
+    //res->nextlist=CB.merge(exp->falselist,statement->nextlist);
+    //cout<<statement->breaklist.size()<<endl;
+    res->breaklist    = statement->breaklist;
+    res->continuelist = statement->continuelist;
 }
 
 void symbol::if_else_backpatch(Node* res , Node* exp , Node* statement1 , Node* N , Node* statement2 , Node* M2 ,string M1_label){
+
+    int line1 = CB.emit("br label @");
     string next_label=CB.genLabel();
+    CB.bpatch(CB.makelist({line1,FIRST}), next_label);
+
     CB.bpatch(exp->truelist,M1_label);
     CB.bpatch(exp->falselist,M2->name);
     CB.bpatch(statement1->nextlist,next_label);
@@ -420,13 +472,13 @@ void symbol::if_else_backpatch(Node* res , Node* exp , Node* statement1 , Node* 
 }
 
 void symbol::exit_loop(Node* res){
-    int line1=CB.emit("br label @");
-    res->breaklist= CodeBuffer::makelist({line1,FIRST});
+    int line1 = CB.emit("br label @    ; break ");
+    res->breaklist= CB.makelist({line1,FIRST});
 }
 
 void symbol::skip_loop(Node* res) {
-    int line1=CB.emit("br label @");
-    res->continuelist= CodeBuffer::makelist({line1,FIRST});
+    int line1=CB.emit("br label @   ; continue");
+    res->continuelist= CB.makelist({line1,FIRST});
 }
 
 void symbol::while_backpatch(Node* res , Node* exp , Node* statement , Node* marker1 , Node* marker2){
@@ -441,13 +493,70 @@ void symbol::while_backpatch(Node* res , Node* exp , Node* statement , Node* mar
 }
 
 void symbol::while_else_backpatch(Node* res , Node* exp , Node* statement1 , Node* statement2 , Node* marker1 , Node* marker2 , Node* marker3 , Node* skip_marker){
+
+    int line1 = CB.emit("br label @");
     string next_label=CB.genLabel();
+    CB.bpatch(CB.makelist({line1,FIRST}), next_label);
+
     CB.bpatch(statement1->nextlist,marker1->name);
     CB.bpatch(statement2->nextlist,next_label);
     CB.bpatch(exp->truelist,marker2->name);
     CB.bpatch(statement1->continuelist,marker1->name);
     CB.bpatch(exp->falselist,marker3->name);
+    //cout<< statement1->breaklist.size()<<"%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%";
     CB.bpatch(statement1->breaklist,next_label);
     CB.bpatch(skip_marker->nextlist,marker1->name);
 
 }
+
+void symbol::function_call(const string &name ,Node* explist, string resReg){
+    vector<string>  args , in_out , types;
+    tokenize(explist->reg, ",", args);
+    tokenize(explist->type, ",", types);
+    string input_size = to_string(args.size());
+    const arg* func = get_var(name,true);
+    string f_type = func->type;
+    tokenize(f_type, "->", in_out);
+    string func_arg = "";
+    string retType;
+    string str_size=to_string(explist->value.size()-4);
+    string input_stack = freshVar();
+
+
+    for(int i=0 ; i < args.size() ; i++ ){
+        if(types[i] != "STRING"){
+            if(i > 0)
+                func_arg = func_arg + " ,i32 " + args[i];
+            else
+                func_arg = func_arg + "i32 " + args[i];
+        }
+        else{
+            if(i > 0)
+                func_arg = func_arg + " ,i8* " + args[i];
+            else
+                func_arg = func_arg + "i8* getelementptr ([" + to_string(explist->value.size()-4) +" x i8], [" + to_string(explist->value.size()-4) +" x i8]* " + args[i]  +", i32 0, i32 0)" ;
+        }
+
+    }
+
+    retType=funcType(name,explist->type,0);
+    if(retType != "VOID")
+        CB.emit(resReg + " = call i32 @" + name + "(" + func_arg + ")");
+    else
+        CB.emit("call void @" + name + "(" + func_arg + ")");
+
+}
+
+void symbol::function_call_no_args(const string &name , string resReg){
+    vector<string> in_out;
+    const arg* func = get_var(name,true);
+    string f_type = func->type;
+    tokenize(f_type, "->", in_out);
+    string retType=funcType(name,"",0);
+    if(retType != "VOID")
+        CB.emit(resReg + " = call i32 @" + name + "()");
+    else
+        CB.emit("call void @" + name + "()");
+}
+
+

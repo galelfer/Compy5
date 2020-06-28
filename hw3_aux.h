@@ -15,9 +15,11 @@ public:
     string name;
     string type;
     ll offset;
-
     arg(const string name, const string type, ll offset) : name(name), type(type), offset(offset) {}
+
 };
+
+
 
 typedef vector <arg> table;
 
@@ -28,6 +30,7 @@ public:
     vector <ll> o_stack;
     string llvm_stack_reg;
     string input_llvm_stack_reg;
+    int input_llvm_stack_reg_size;
 
     symbol() {
         table global_scope;
@@ -35,7 +38,7 @@ public:
         o_stack.emplace_back(0);
     }
 
-    Node* makeNodeFromID(const string& id, int lineno);
+    Node* makeNodeFromID(Node* node, int lineno);
 
     const arg* get_var(const string &unique_name, bool isFunc);
 
@@ -75,13 +78,13 @@ public:
 
     void assign_check_types(const string &type1, const string &type2, int lineno);
 
-    void assign_value(const string &name, const string &type, int lineno , const string &reg);
+    string assign_value(const string &name, const string &type, int lineno , const string &reg);
 
     void forceIntoReg(Node* node);
 
     void init_llvm_stack();
 
-    void init_var_in_llvmStack(const string &name, const string &type, int lineno);
+    string init_var_in_llvmStack(const string &name, const string &type, int lineno);
 
     void boolean_evaluation(Node* exp);
 
@@ -92,8 +95,6 @@ public:
     void swap_truelist_falselist(Node* resExp , Node* exp);
 
     string switch_relop(string rel);
-
-    string to_i32(vector<string> types);
 
     void and_backpatch( Node* res , Node* first , Node* second , string marker_label);
 
@@ -116,6 +117,13 @@ public:
     void while_backpatch(Node* res , Node* exp , Node* statement , Node* marker1 , Node* marker2);
 
     void while_else_backpatch(Node* res , Node* exp , Node* statement1 , Node* statement2 , Node* marker1 , Node* marker2 , Node* marker3 , Node* skip_marker);
+
+    void function_call(const string &name ,Node* explist, string resReg);
+
+    void function_call_no_args(const string &name , string resReg);
+
+    string args_list(vector<string> types);
+
 };
 
 
