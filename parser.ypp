@@ -115,12 +115,12 @@ NEW_SCOPE :     {symbols->add_scope();}
 END_SCOPE :      {symbols->remove_scope();}
 ;
 
-Call : ID LPAREN ExplList RPAREN  {$$=new Node("", symbols->funcType($1->name, $3->type , yylineno), freshVar()); symbols->function_call($1->name, $3, $$->reg);}
+Call : ID LPAREN ExplList RPAREN  {$$=new Node("", symbols->funcType($1->name, $3->type , yylineno), freshVar());  symbols->function_call($1->name, $3, $$->reg);}
 	 | ID LPAREN RPAREN			  {$$=new Node("", symbols->funcType($1->name, "", yylineno), freshVar()); symbols->function_call_no_args($1->name, $$->reg); }
 ;
 
 ExplList : Exp 							{symbols->boolean_evaluation($1); $$ = new Node($1->name, $1->type, $1->value ,$1->reg);}
-		 |	Exp COMMA ExplList  		{symbols->boolean_evaluation($1); $$ = new Node($1->name + "," + $3->name, $1->type + "," + $3->type, $1->value + $3->value ,$1->reg + "," + $3->reg);}
+		 |	Exp COMMA ExplList  		{symbols->boolean_evaluation($1); $$ = new Node($1->name + "," + $3->name, $1->type + "," + $3->type, $1->value + "," + $3->value ,$1->reg + "," + $3->reg);}
 ;
 
 Type :  INT   									{$$ = new Node("", "INT", "");}
