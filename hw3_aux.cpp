@@ -379,7 +379,11 @@ void symbol::boolean_evaluation(Node* exp){
     int from_false = CB.emit("br label @");
     CB.bpatch(exp->truelist,true_label);
     CB.bpatch(exp->falselist,false_label);
+
+    int line3 = CB.emit("br label @");
     string label3 = CB.genLabel();
+    CB.bpatch(CB.makelist({line3,FIRST}), label3);
+
     CB.bpatch(CodeBuffer::makelist({from_true,FIRST}),label3);
     CB.bpatch(CodeBuffer::makelist({from_false,FIRST}),label3);
     exp->reg=freshVar();
@@ -388,8 +392,8 @@ void symbol::boolean_evaluation(Node* exp){
 
 void symbol::swap_truelist_falselist(Node* resExp , Node* exp){
 
-    resExp->truelist=exp->falselist;
-    resExp->falselist=exp->truelist;
+    resExp->truelist  = exp->falselist;
+    resExp->falselist = exp->truelist;
 
 }
 
@@ -483,7 +487,9 @@ void symbol::skip_loop(Node* res) {
 
 void symbol::while_backpatch(Node* res , Node* exp , Node* statement , Node* marker1 , Node* marker2){
     CB.emit("br label %"+ marker1->name);
-    string next_label=CB.genLabel();
+    int line1 = CB.emit("br label @");
+    string next_label = CB.genLabel();
+    CB.bpatch(CB.makelist({line1,FIRST}), next_label);
     CB.bpatch(statement->nextlist,marker1->name);
     CB.bpatch(exp->truelist,marker2->name);
     CB.bpatch(statement->continuelist,marker1->name);
@@ -510,15 +516,24 @@ void symbol::while_else_backpatch(Node* res , Node* exp , Node* statement1 , Nod
 }
 
 void symbol::function_call(const string &name ,Node* explist, string resReg){
+
+
+    //cout<<explist->type<<"$$$$$$$$$$$$$$$"<<endl;
+
     vector<string>  args , in_out , types;
-    tokenize(explist->reg, ",", args);
-    tokenize(explist->type, ",", types);
+    string explist_regs = explist->reg;
+    string explist_types = explist->type;
+    tokenize(explist_regs, ",", args);
+    tokenize(explist_types, ",", types);
     string input_size = to_string(args.size());
     const arg* func = get_var(name,true);
     string f_type = func->type;
     tokenize(f_type, "->", in_out);
     string func_arg = "";
     string retType;
+
+
+
     string str_size=to_string(explist->value.size()-4);
     string input_stack = freshVar();
 

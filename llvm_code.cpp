@@ -75,11 +75,16 @@ void div(string reg_a, string reg_b, Node* ret , bool to_trunc){
     CB.emit(t1 + " = icmp eq i32 " + reg_b + " , 0");
     int line2 = CB.emit("br i1 " + t1 + ", label @, label @");
     string CC = crush_code();
+    string divByZ = freshVar();
     CB.emit("call void @print(i8* getelementptr ([23 x i8], [23 x i8]* @.stzero, i32 0, i32 0))");
-    CB.emit("%divByZ = add i32 0 , -1");
-    CB.emit("call void (i32) @exit(i32 %divByZ)");
+    CB.emit(divByZ + " = add i32 0 , -1");
+    CB.emit("call void (i32) @exit(i32 " + divByZ + ")");
     CB.bpatch(CB.makelist({line2, FIRST}), CC);
+
+    int line3 = CB.emit("br label @");
     string OK = CB.genLabel();
+    CB.bpatch(CB.makelist({line3,FIRST}), OK);
+
     CB.bpatch(CB.makelist({line2, SECOND}), OK);
     arithmitic_ops("sdiv" , ret->reg ,reg_a , reg_b , to_trunc );
 }
