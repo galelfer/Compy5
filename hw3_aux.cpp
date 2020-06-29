@@ -578,8 +578,16 @@ void symbol::function_call(const string &name, Node *explist, string resReg) {
     }
 
     retType = funcType(name, explist->type, 0);
-    if (retType != "VOID")
-        CB.emit(resReg + " = call i32 @" + name + "(" + func_arg + ")");
+    if (retType != "VOID"){
+        if(retType=="BOOL"){
+           string tmp_res_reg = freshVar();
+            CB.emit(tmp_res_reg + " = call i32 @" + name + "(" + func_arg + ")");
+            CB.emit(resReg + " = icmp eq i32 " + tmp_res_reg + ", 1 ");
+        }
+        else
+            CB.emit(resReg + " = call i32 @" + name + "(" + func_arg + ")");
+    }
+
     else
         CB.emit("call void @" + name + "(" + func_arg + ")");
 
@@ -591,8 +599,16 @@ void symbol::function_call_no_args(const string &name, string resReg) {
     string f_type = func->type;
     tokenize(f_type, "->", in_out);
     string retType = funcType(name, "", 0);
-    if (retType != "VOID")
-        CB.emit(resReg + " = call i32 @" + name + "()");
+    if (retType != "VOID"){
+        if(retType=="BOOL"){
+            string tmp_res_reg = freshVar();
+            CB.emit(tmp_res_reg + " = call i32 @" + name + "()");
+            CB.emit(resReg + " = icmp eq i32 " + tmp_res_reg + ", 1 ");
+        }
+        else
+            CB.emit(resReg + " = call i32 @" + name + "()");
+    }
+
     else
         CB.emit("call void @" + name + "()");
 }
