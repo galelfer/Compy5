@@ -234,6 +234,7 @@ void symbol::assign(const string &name, const string &type, int lineno) {
 string symbol::init_var_in_llvmStack(const string &name, const string &type, int lineno) {
     string valueReg = freshVar();
     CB.emit(valueReg + " = add i32 0 , 0");
+    //cout<< "name : " << name << "type : " << type << "line num : " << lineno <<   endl;
     return assign_value(name, type, lineno, valueReg);
 }
 
@@ -383,25 +384,21 @@ void symbol::init_falselist(Node *node) {
 void symbol::boolean_evaluation(Node *exp) {
     if (exp->type != "BOOL")
         return;
-    //these 3 lines are not redundant , they resolve a syntax error!!
-    //int line1 = CB.emit("br label @");
-    string true_label = CB.genLabel();
-    //CB.bpatch(CB.makelist({line1,FIRST}), true_label);
 
-    int from_true = CB.emit("br label @");
-    string false_label = CB.genLabel();
-    int from_false = CB.emit("br label @");
-    CB.bpatch(exp->truelist, true_label);
-    CB.bpatch(exp->falselist, false_label);
-
-    //int line3 = CB.emit("br label @");
-    string label3 = CB.genLabel();
-    //CB.bpatch(CB.makelist({line3,FIRST}), label3);
-
-    CB.bpatch(CodeBuffer::makelist({from_true, FIRST}), label3);
-    CB.bpatch(CodeBuffer::makelist({from_false, FIRST}), label3);
     exp->reg = freshVar();
-    CB.emit(exp->reg + " = phi i32 [ 1, %" + true_label + " ], [ 0, %" + false_label + " ]");
+    int line1 = CB.emit("br label @");
+    string label1 = CB.genLabel();
+    int line2 = CB.emit("br label @");
+    string label2 = CB.genLabel();
+    int line3 = CB.emit("br label @");
+    CB.bpatch(exp->truelist,label1);
+    CB.bpatch(exp->falselist,label2);
+    string label3 = CB.genLabel();
+    CB.bpatch(CodeBuffer::makelist({line1,FIRST}),label1);
+    CB.bpatch(CodeBuffer::makelist({line2,FIRST}),label3);
+    CB.bpatch(CodeBuffer::makelist({line3,FIRST}),label3);
+    CB.emit(exp->reg + " = phi i32 [ 1, %"+label1+" ], [ 0, %"+label2+" ]");
+
 }
 
 void symbol::swap_truelist_falselist(Node *resExp, Node *exp) {
@@ -454,10 +451,6 @@ void symbol::bool_evaluation_for_call(Node *node) {
         int line1 = CB.emit("br i1 " + node->reg + ", label @, label @");
         node->truelist = CB.makelist({line1, FIRST});
         node->falselist = CB.makelist({line1, SECOND});
-//        string reg =freshVar();
-//        CB.emit(reg + " = icmp eq i32 " + node->reg + ", 1 ");
-//        CB.emit("##############################################################");
-//        node->reg = reg;
     }
 }
 
@@ -478,7 +471,6 @@ void symbol::if_backpatching(Node *res, Node *exp, Node *statement, string marke
     CB.bpatch(exp->falselist, next_label);
     CB.bpatch(statement->nextlist, next_label);
     //res->nextlist=CB.merge(exp->falselist,statement->nextlist);
-    //cout<<statement->breaklist.size()<<endl;
     res->breaklist = statement->breaklist;
     res->continuelist = statement->continuelist;
 }
@@ -614,3 +606,10 @@ void symbol::function_call_no_args(const string &name, string resReg) {
 }
 
 
+void symbol::print_branch_for_boolean_call(Node* exp){
+    if(exp->name == "call"){
+        int line = CB.emit("br i1 " + exp->reg + ", label @, label @");
+        exp->truelist = CB.makelist({line, FIRST});
+        exp->falselist = CB.makelist({line, SECOND});
+    }
+}
