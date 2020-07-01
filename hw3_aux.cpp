@@ -234,7 +234,6 @@ void symbol::assign(const string &name, const string &type, int lineno) {
 string symbol::init_var_in_llvmStack(const string &name, const string &type, int lineno) {
     string valueReg = freshVar();
     CB.emit(valueReg + " = add i32 0 , 0");
-    //cout<< "name : " << name << "type : " << type << "line num : " << lineno <<   endl;
     return assign_value(name, type, lineno, valueReg);
 }
 
@@ -403,13 +402,12 @@ void symbol::boolean_evaluation(Node *exp) {
 
 void symbol::swap_truelist_falselist(Node *resExp, Node *exp) {
 
+    resExp->truelist  = exp->falselist;
+    resExp->falselist = exp->truelist;
 
-//    resExp->truelist  = exp->falselist;
-//    resExp->falselist = exp->truelist;
-
-    vector<pair<int, BranchLabelIndex>> true_list = exp->truelist;
-    resExp->truelist = exp->falselist;
-    resExp->falselist = true_list;
+//    vector<pair<int, BranchLabelIndex>> true_list = resExp->truelist;
+//    resExp->truelist = resExp->falselist;
+//    resExp->falselist = true_list;
 
 }
 
@@ -444,6 +442,8 @@ void symbol::relop_evaluation(Node *res, string op, string arg1, string arg2) {
     int line1 = CB.emit("br i1 " + reg + ", label @, label @");
     res->truelist = CB.makelist({line1, FIRST});
     res->falselist = CB.makelist({line1, SECOND});
+
+
 }
 
 void symbol::bool_evaluation_for_call(Node *node) {
@@ -464,8 +464,6 @@ void symbol::if_backpatching(Node *res, Node *exp, Node *statement, string marke
     int line1 = CB.emit("br label @");
     string next_label = CB.genLabel();
     CB.bpatch(CB.makelist({line1, FIRST}), next_label);
-
-    //cout<<exp->truelist.size()<<"   label : "<< marker_label <<"$$$$$$$$$$$$$$$$$$$"<<endl  ;
 
     CB.bpatch(exp->truelist, marker_label);
     CB.bpatch(exp->falselist, next_label);
