@@ -525,9 +525,13 @@ symbol::while_else_backpatch(Node *res, Node *exp, Node *statement1, Node *state
     CB.bpatch(statement1->nextlist, marker1->name);
     CB.bpatch(statement2->nextlist, next_label);
     CB.bpatch(exp->truelist, marker2->name);
+
+
     CB.bpatch(statement1->continuelist, marker1->name);
+    res->continuelist = CB.merge(res->continuelist, statement2->continuelist );
     CB.bpatch(exp->falselist, marker3->name);
     CB.bpatch(statement1->breaklist, next_label);
+    res->breaklist = CB.merge(res->breaklist, statement2->breaklist) ;
     CB.bpatch(skip_marker->nextlist, marker1->name);
 
 }
