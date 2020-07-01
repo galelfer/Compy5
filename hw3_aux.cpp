@@ -239,7 +239,7 @@ string symbol::init_var_in_llvmStack(const string &name, const string &type, int
 
 string symbol::assign_value(const string &name, const string &type, int lineno, const string &reg) {
 
-    const arg *arg1 = get_var_type(name, type);
+    const arg *arg1 = get_var(name , false);
     string varReg = freshVar();
     if (arg1->offset < 0) {
         CB.emit(varReg + " = getelementptr [" + to_string(input_llvm_stack_reg_size) + " x i32], [" +
